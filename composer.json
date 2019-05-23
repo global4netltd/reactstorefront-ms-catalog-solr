@@ -1,18 +1,17 @@
 {
   "name": "g4n-react/ms-catalog-solr",
-  "description": "Puller and pusher for Solr 7",
+  "description": "Puller and pusher for Solr",
   "version": "0.1.0",
   "license": "MIT",
   "keywords": ["solr"],
   "authors": [
     {
-      "name": "G4N React Crew",
+      "name": "G4N React Storefront",
       "email": "biuro@global4net.com"
     }
   ],
   "require": {
-    "solarium/solarium": "*",
-    "phpunit/phpunit": "^6.5.9"
+    "solarium/solarium": "^4.2.0"
   },
   "autoload": {
     "psr-4": {

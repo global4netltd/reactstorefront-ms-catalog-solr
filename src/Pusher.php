@@ -38,7 +38,6 @@ class Pusher
      */
     public function push(\Iterator $documents)
     {
-
         $pageSize = $this->config->getPageSize();
 
         if ($documents) {

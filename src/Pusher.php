@@ -38,6 +38,9 @@ class Pusher
      */
     public function push(\Iterator $documents)
     {
+
+        $pageSize = $this->config->getPageSize();
+
         if ($documents) {
             $update = $this->client->createUpdate();
 
@@ -46,33 +49,45 @@ class Pusher
 
             // @ToDo: pagination - page size from config
 
-            /** @var Document $document */
+            //test//$pageSize = 2;
+            $i = 0;
             foreach ($documents as $document) {
-                $doc = $update->createDocument();
+                if($i < $pageSize) {
+                    $doc = $update->createDocument();
 
-                $doc->id = (string)$document->getUniqueId();
-                $doc->object_id = (int)$document->getObjectId();
-                $doc->object_type = (string)$document->getObjectType();
+                    $doc->id = (string)$document->getUniqueId();
+                    $doc->object_id = (int)$document->getObjectId();
+                    $doc->object_type = (string)$document->getObjectType();
 
-                /** @var Document\Field $field */
-                foreach ($document->getData() as $field) {
+                    /** @var Document\Field $field */
+                    foreach ($document->getData() as $field) {
 
-                    $solrFieldName = $field->getName()
-                        . (Helper::$mapFieldType[$field->getType()] ?? Helper::SOLR_FIELD_TYPE_DEFAULT)
-                        . ($field->getIndexable() ? '' : Helper::SOLR_NOT_INDEXABLE_MARK)
-                        . Helper::SOLR_MULTI_VALUE_MARK;
+                        $solrFieldName = $field->getName()
+                            . (Helper::$mapFieldType[$field->getType()] ?? Helper::SOLR_FIELD_TYPE_DEFAULT)
+                            . ($field->getIndexable() ? '' : Helper::SOLR_NOT_INDEXABLE_MARK)
+                            . Helper::SOLR_MULTI_VALUE_MARK;
 
-                    $solrFieldValue = $field->getValue();
-                    if (isset(Helper::$mapFieldType[$field->getType()]) && Helper::$mapFieldType[$field->getType()] === Helper::SOLR_FIELD_TYPE_DATETIME) {
-                        $solrFieldValue = date(Helper::SOLR_DATETIME_FORMAT, strtotime($field->getValue()));
+                        $solrFieldValue = $field->getValue();
+                        if (isset(Helper::$mapFieldType[$field->getType()]) && Helper::$mapFieldType[$field->getType()] === Helper::SOLR_FIELD_TYPE_DATETIME) {
+                            $solrFieldValue = date(Helper::SOLR_DATETIME_FORMAT, strtotime($field->getValue()));
+                        }
+
+                        $doc->{$solrFieldName} = $solrFieldValue;
                     }
 
-                    $doc->{$solrFieldName} = $solrFieldValue;
+                    $update->addDocument($doc);
+
+                    $i++;
+                    //print_r($i . ' krok ');
+                }else{
+                    //print_r(' update ');
+                    $update->addCommit();
+                    $result = $this->client->update($update);
+                    $i = 0;
+                    $update = $this->client->createUpdate();
                 }
-
-                $update->addDocument($doc);
             }
-
+            //print_r(' last update ');
             $update->addCommit();
             $result = $this->client->update($update);
         }

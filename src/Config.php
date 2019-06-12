@@ -16,6 +16,11 @@ class Config implements ConfigInterface
     const ENGINE_SOLR = 1;
 
     /**
+     * @var int
+     */
+    private $engine;
+
+    /**
      * @var string
      */
     private $host;
@@ -33,105 +38,51 @@ class Config implements ConfigInterface
     /**
      * @var string
      */
+    private $collection;
+
+    /**
+     * @var string
+     */
     private $core;
 
     /**
-     * Config constructor.
+     * @var int
+     */
+    private $pageSize;
+
+    /**
+     * @var bool
+     */
+    private $clearIndexBeforeReindex;
+
+    /**
+     * Config constructor
      *
      * @param string $host
      * @param int $port
      * @param string $path
+     * @param string $collection
      * @param string $core
      */
-    public function __construct($host, $port, $path, $core)
+    public function __construct($host, $port, $path, $collection, $core)
     {
         $this->host = $host;
         $this->port = $port;
         $this->path = $path;
+        $this->collection = $collection;
         $this->core = $core;
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getHost()
+    public function getConfigArray(): array
     {
-        return $this->host;
-    }
-
-    /**
-     * @return int
-     */
-    public function getPort()
-    {
-        return $this->port;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCore()
-    {
-        return $this->core;
-    }
-
-    public function getEngine()
-    {
-        // TODO: Implement getEngine() method.
-    }
-
-    public function setEngine(int $engine)
-    {
-        // TODO: Implement setEngine() method.
-    }
-
-    public function setHost(string $host)
-    {
-        // TODO: Implement setHost() method.
-    }
-
-    public function setPort(int $port)
-    {
-        // TODO: Implement setPort() method.
-    }
-
-    public function setPath(string $path)
-    {
-        // TODO: Implement setPath() method.
-    }
-
-    public function setCore(string $core)
-    {
-        // TODO: Implement setCore() method.
-    }
-
-
-    public function getPageSize()
-    {
-        // TODO: Implement getPageSize() method.
-    }
-
-    public function setPageSize(int $pageSize)
-    {
-        // TODO: Implement setPageSize() method.
-    }
-
-    public function isClearIndexBeforeReindex()
-    {
-        // TODO: Implement isClearIndexBeforeReindex() method.
-    }
-
-    public function setClearIndexBeforeReindex(bool $clearIndexBeforeReindex)
-    {
-        // TODO: Implement setClearIndexBeforeReindex() method.
+        return [
+            'endpoint' => [
+                'localhost' => $this->getConnectionConfigArray()
+            ]
+        ];
     }
 
     /**
@@ -140,22 +91,163 @@ class Config implements ConfigInterface
     public function getConnectionConfigArray(): array
     {
         return [
-            'host' => $this->getHost(),
-            'port' => $this->getPort(),
-            'path' => $this->getPath(),
-            'core' => $this->getCore(),
+            'host'       => $this->getHost(),
+            'port'       => $this->getPort(),
+            'path'       => $this->getPath(),
+            'collection' => $this->getCollection(),
+            'core'       => $this->getCore(),
         ];
     }
 
     /**
-     * @return array
+     * @return string
      */
-    public function getConfigArray()
+    public function getHost(): string
     {
-        return [
-            'endpoint' => [
-                'localhost' => $this->getConnectionConfigArray()
-            ]
-        ];
+        return $this->host;
+    }
+
+    /**
+     * @param string $host
+     * @return ConfigInterface
+     */
+    public function setHost(string $host): ConfigInterface
+    {
+        $this->host = $host;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPort(): int
+    {
+        return $this->port;
+    }
+
+    /**
+     * @param int $port
+     * @return ConfigInterface
+     */
+    public function setPort(int $port): ConfigInterface
+    {
+        $this->port = $port;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPath(): string
+    {
+        return $this->path;
+    }
+
+    /**
+     * @param string $path
+     * @return ConfigInterface
+     */
+    public function setPath(string $path): ConfigInterface
+    {
+        $this->path = '/'; // since Solarium 5.0
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCore(): string
+    {
+        return $this->core;
+    }
+
+    /**
+     * @param string $core
+     * @return ConfigInterface
+     */
+    public function setCore(string $core): ConfigInterface
+    {
+        $this->core = $core;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCollection(): string
+    {
+        return $this->collection;
+    }
+
+    /**
+     * @param string $collection
+     * @return ConfigInterface
+     */
+    public function setCollection(string $collection): ConfigInterface
+    {
+        $this->collection = $collection;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEngine()
+    {
+        return $this->engine;
+    }
+
+    /**
+     * @param int $engine
+     * @return ConfigInterface
+     */
+    public function setEngine(int $engine): ConfigInterface
+    {
+        $this->engine = $engine;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPageSize(): int
+    {
+        return $this->pageSize;
+    }
+
+    /**
+     * @param int $pageSize
+     * @return ConfigInterface
+     */
+    public function setPageSize(int $pageSize): ConfigInterface
+    {
+        $this->pageSize = $pageSize;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isClearIndexBeforeReindex(): bool
+    {
+        return (bool)$this->clearIndexBeforeReindex;
+    }
+
+    /**
+     * @param bool $clearIndexBeforeReindex
+     * @return ConfigInterface
+     */
+    public function setClearIndexBeforeReindex(bool $clearIndexBeforeReindex): ConfigInterface
+    {
+        $this->clearIndexBeforeReindex = (bool)$clearIndexBeforeReindex;
+
+        return $this;
     }
 }

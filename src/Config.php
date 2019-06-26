@@ -3,135 +3,47 @@
 namespace G4NReact\MsCatalogSolr;
 
 use G4NReact\MsCatalog\ConfigInterface;
+use G4NReact\MsCatalog\Helper as MsCatalogHelper;
 
 /**
  * Class Config
  * @package G4NReact\MsCatalogSolr
  */
-class Config implements ConfigInterface
+class Config
 {
-    /**
-     * Engine types
-     */
-    const ENGINE_SOLR = 1;
+    const MODE_PUSHER = 'pusher';
+    const MODE_PULLER = 'puller';
 
     /**
-     * @var string
+     * @var string|null
      */
-    private $host;
+    protected $mode = null;
 
     /**
-     * @var int
+     * @var ConfigInterface
      */
-    private $port;
+    protected $config;
 
     /**
-     * @var string
-     */
-    private $path;
-
-    /**
-     * @var string
-     */
-    private $core;
-
-    /**
-     * Config constructor.
+     * Config constructor
      *
-     * @param string $host
-     * @param int $port
-     * @param string $path
-     * @param string $core
+     * @param ConfigInterface $config
      */
-    public function __construct($host, $port, $path, $core)
+    public function __construct(ConfigInterface $config)
     {
-        $this->host = $host;
-        $this->port = $port;
-        $this->path = $path;
-        $this->core = $core;
+        $this->config = $config;
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getHost()
+    public function getConfigArray(): array
     {
-        return $this->host;
-    }
-
-    /**
-     * @return int
-     */
-    public function getPort()
-    {
-        return $this->port;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCore()
-    {
-        return $this->core;
-    }
-
-    public function getEngine()
-    {
-        // TODO: Implement getEngine() method.
-    }
-
-    public function setEngine(int $engine)
-    {
-        // TODO: Implement setEngine() method.
-    }
-
-    public function setHost(string $host)
-    {
-        // TODO: Implement setHost() method.
-    }
-
-    public function setPort(int $port)
-    {
-        // TODO: Implement setPort() method.
-    }
-
-    public function setPath(string $path)
-    {
-        // TODO: Implement setPath() method.
-    }
-
-    public function setCore(string $core)
-    {
-        // TODO: Implement setCore() method.
-    }
-
-
-    public function getPageSize()
-    {
-        // TODO: Implement getPageSize() method.
-    }
-
-    public function setPageSize(int $pageSize)
-    {
-        // TODO: Implement setPageSize() method.
-    }
-
-    public function isClearIndexBeforeReindex()
-    {
-        // TODO: Implement isClearIndexBeforeReindex() method.
-    }
-
-    public function setClearIndexBeforeReindex(bool $clearIndexBeforeReindex)
-    {
-        // TODO: Implement setClearIndexBeforeReindex() method.
+        return [
+            'endpoint' => [
+                'localhost' => $this->getConnectionConfigArray()
+            ]
+        ];
     }
 
     /**
@@ -139,23 +51,82 @@ class Config implements ConfigInterface
      */
     public function getConnectionConfigArray(): array
     {
+        if (!$this->mode) {
+            if ($this->config->getPullerEngine() === MsCatalogHelper::ENGINE_SOLR_VALUE) {
+                $this->mode = self::MODE_PULLER;
+            } elseif ($this->config->getPusherEngine() === MsCatalogHelper::ENGINE_SOLR_VALUE) {
+                $this->mode = self::MODE_PUSHER;
+            } else {
+                // log error, throw exception etc.
+                return [];
+            }
+        }
+
         return [
-            'host' => $this->getHost(),
-            'port' => $this->getPort(),
-            'path' => $this->getPath(),
-            'core' => $this->getCore(),
+            'host'       => $this->getHost(),
+            'port'       => $this->getPort(),
+            'collection' => $this->getCollection(),
+            'core'       => $this->getCore(),
         ];
     }
 
     /**
-     * @return array
+     * @return string
      */
-    public function getConfigArray()
+    public function getHost(): string
     {
-        return [
-            'endpoint' => [
-                'localhost' => $this->getConnectionConfigArray()
-            ]
-        ];
+        return ($this->mode === self::MODE_PULLER)
+            ? ($this->config->getPullerEngineParams()['connection']['host'] ?? '')
+            : ($this->config->getPusherEngineParams()['connection']['host'] ?? '');
+    }
+
+    /**
+     * @return int
+     */
+    public function getPort(): int
+    {
+        return ($this->mode === self::MODE_PULLER)
+            ? ($this->config->getPullerEngineParams()['connection']['port'] ?? 0)
+            : ($this->config->getPusherEngineParams()['connection']['port'] ?? 0);
+    }
+
+    /**
+     * @return string
+     */
+    public function getCore(): string
+    {
+        return ($this->mode === self::MODE_PULLER)
+            ? ($this->config->getPullerEngineParams()['connection']['core'] ?? '')
+            : ($this->config->getPusherEngineParams()['connection']['core'] ?? '');
+    }
+
+    /**
+     * @return string
+     */
+    public function getCollection(): string
+    {
+        return ($this->mode === self::MODE_PULLER)
+            ? ($this->config->getPullerEngineParams()['connection']['collection'] ?? '')
+            : ($this->config->getPusherEngineParams()['connection']['collection'] ?? '');
+    }
+
+    /**
+     * @return int
+     */
+    public function getPageSize(): int
+    {
+        return ($this->mode === self::MODE_PULLER)
+            ? (int)$this->config->getPullerPageSize()
+            : (int)$this->config->getPusherPageSize();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isClearIndexBeforeReindex(): bool
+    {
+        return ($this->mode === self::MODE_PUSHER)
+            ? (bool)$this->config->getPusherDeleteIndex()
+            : false;
     }
 }

@@ -2,18 +2,24 @@
 
 namespace G4NReact\MsCatalogSolr;
 
+use Exception;
 use G4NReact\MsCatalog\Document;
-use G4NReact\MsCatalogSolr\Config;
+use G4NReact\MsCatalog\PullerInterface;
+use G4NReact\MsCatalog\PusherInterface;
+use G4NReact\MsCatalog\ResponseInterface;
+use G4NReact\MsCatalog\ConfigInterface;
+use G4NReact\MsCatalogSolr\Config as SolrConfig;
+use Iterator;
 use Solarium\Client;
 
 /**
  * Class Pusher
  * @package G4NReact\MsCatalogSolr
  */
-class Pusher
+class Pusher implements PusherInterface
 {
     /**
-     * @var Config
+     * @var SolrConfig
      */
     private $config;
 
@@ -24,72 +30,76 @@ class Pusher
 
     /**
      * Pusher constructor
-     * @param Config $config
+     * @param ConfigInterface $config
      */
-    public function __construct(Config $config)
+    public function __construct(ConfigInterface $config)
     {
-        $this->config = $config;
-
-        $this->client = new Client($this->getConfigArray());
+        $this->config = new SolrConfig($config);
+        $this->client = new Client($this->config->getConfigArray());
     }
 
     /**
-     * @param \Iterator $documents
+     * @param Iterator|PullerInterface $documents
+     * @return ResponseInterface
      */
-    public function push(\Iterator $documents)
+    public function push($documents): ResponseInterface
     {
         $pageSize = $this->config->getPageSize();
-
+        $response = new Response();
         if ($documents) {
-            $update = $this->client->createUpdate();
+            try {
 
-            // delete index before reindexing if setting == true -> set delete query eg '*:*' or 'product_type:"category"'
-            $this->clearIndex();
+                $update = $this->client->createUpdate();
 
-            // @ToDo: pagination - page size from config
+                // @ToDo: delete index before reindexing if setting == true -> set delete query eg '*:*' or 'product_type:"category"'
+                $this->clearIndex();
 
-            //test//$pageSize = 2;
-            $i = 0;
-            foreach ($documents as $document) {
-                if($i < $pageSize) {
-                    $doc = $update->createDocument();
+                $i = 0;
+                /** @var Document $document */
+                foreach ($documents as $document) {
+                    if($i < $pageSize) {
+                        $doc = $update->createDocument();
 
-                    $doc->id = (string)$document->getUniqueId();
-                    $doc->object_id = (int)$document->getObjectId();
-                    $doc->object_type = (string)$document->getObjectType();
+                        $doc->id = (string)$document->getUniqueId();
+                        $doc->object_id = (int)$document->getObjectId();
+                        $doc->object_type = (string)$document->getObjectType();
 
-                    /** @var Document\Field $field */
-                    foreach ($document->getData() as $field) {
+                        /** @var Document\Field $field */
+                        foreach ($document->getData() as $field) {
 
-                        $solrFieldName = $field->getName()
-                            . (Helper::$mapFieldType[$field->getType()] ?? Helper::SOLR_FIELD_TYPE_DEFAULT)
-                            . ($field->getIndexable() ? '' : Helper::SOLR_NOT_INDEXABLE_MARK)
-                            . Helper::SOLR_MULTI_VALUE_MARK;
+                            $solrFieldName = $field->getName()
+                                . (Helper::$mapFieldType[$field->getType()] ?? Helper::SOLR_FIELD_TYPE_DEFAULT)
+                                . ($field->getIndexable() ? '' : Helper::SOLR_NOT_INDEXABLE_MARK)
+                                . Helper::SOLR_MULTI_VALUE_MARK;
 
-                        $solrFieldValue = $field->getValue();
-                        if (isset(Helper::$mapFieldType[$field->getType()]) && Helper::$mapFieldType[$field->getType()] === Helper::SOLR_FIELD_TYPE_DATETIME) {
-                            $solrFieldValue = date(Helper::SOLR_DATETIME_FORMAT, strtotime($field->getValue()));
+                            $solrFieldValue = $field->getValue();
+                            if (isset(Helper::$mapFieldType[$field->getType()]) && Helper::$mapFieldType[$field->getType()] === Helper::SOLR_FIELD_TYPE_DATETIME) {
+                                $solrFieldValue = date(Helper::SOLR_DATETIME_FORMAT, strtotime($field->getValue()));
+                            }
+
+                            $doc->{$solrFieldName} = $solrFieldValue;
                         }
 
-                        $doc->{$solrFieldName} = $solrFieldValue;
+                        $i++;
+                        $update->addDocument($doc);
+                    }else{
+                        $update->addCommit();
+                        $result = $this->client->update($update);
+                        $i = 0;
+                        $update = $this->client->createUpdate();
                     }
-
-                    $update->addDocument($doc);
-
-                    $i++;
-                    //print_r($i . ' krok ');
-                }else{
-                    //print_r(' update ');
-                    $update->addCommit();
-                    $result = $this->client->update($update);
-                    $i = 0;
-                    $update = $this->client->createUpdate();
                 }
+                $update->addCommit();
+                $result = $this->client->update($update);
+                $response->setStatusCode($result->getResponse()->getStatusCode())
+                    ->setStatusMessage($result->getResponse()->getStatusMessage());
+
+            } catch (Exception $e) {
+                echo $e->getMessage();
             }
-            //print_r(' last update ');
-            $update->addCommit();
-            $result = $this->client->update($update);
         }
+
+        return $response;
     }
 
     /**

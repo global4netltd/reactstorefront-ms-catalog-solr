@@ -37,6 +37,16 @@ class Response implements ResponseInterface
     private $currentPage;
 
     /**
+     * @var int
+     */
+    private $statusCode = 0;
+
+    /**
+     * @var string
+     */
+    private $statusMessage = 'empty';
+
+    /**
      * @return int
      */
     public function getNumFound()
@@ -142,5 +152,43 @@ class Response implements ResponseInterface
         $this->currentPage = $currentPage;
 
         return $this;
+    }
+
+    /**
+     * @param int $statusCode
+     * @return ResponseInterface
+     */
+    public function setStatusCode(int $statusCode): ResponseInterface
+    {
+        $this->statusCode = (int)$statusCode;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStatusCode(): int
+    {
+        return (int)$this->statusCode;
+    }
+
+    /**
+     * @param string $statusMessage
+     * @return ResponseInterface
+     */
+    public function setStatusMessage(string $statusMessage): ResponseInterface
+    {
+        $this->statusMessage = (string)$statusMessage;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatusMessage(): string
+    {
+        return (string)$this->statusMessage;
     }
 }

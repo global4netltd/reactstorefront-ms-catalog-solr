@@ -3,6 +3,7 @@
 namespace G4NReact\MsCatalogSolr;
 
 use G4NReact\MsCatalog\Document;
+use G4NReact\MsCatalog\PullerInterface;
 use G4NReact\MsCatalogSolr\Config;
 use G4NReact\MsCatalogSolr\Query;
 use G4NReact\MsCatalogSolr\Response;
@@ -12,7 +13,7 @@ use Solarium\Client;
  * Class Puller
  * @package G4NReact\MsCatalogSolr
  */
-class Puller
+class Puller implements PullerInterface
 {
     /**
      * @var \G4NReact\MsCatalogSolr\Config Config Configuration object

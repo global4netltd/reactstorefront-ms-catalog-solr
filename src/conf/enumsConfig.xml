@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<enumsConfig>
+    <enum name="objectType">
+        <value>product</value>
+        <value>category</value>
+        <value>cms</value>
+    </enum>
+</enumsConfig>

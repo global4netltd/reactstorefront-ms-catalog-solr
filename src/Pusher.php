@@ -70,7 +70,7 @@ class Pusher implements PusherInterface
                             $solrFieldName = $field->getName()
                                 . (Helper::$mapFieldType[$field->getType()] ?? Helper::SOLR_FIELD_TYPE_DEFAULT)
                                 . ($field->getIndexable() ? '' : Helper::SOLR_NOT_INDEXABLE_MARK)
-                                . Helper::SOLR_MULTI_VALUE_MARK;
+                                . ($field->getMultiValued() ? Helper::SOLR_MULTI_VALUE_MARK : '');
 
                             $solrFieldValue = $field->getValue();
                             if (isset(Helper::$mapFieldType[$field->getType()]) && Helper::$mapFieldType[$field->getType()] === Helper::SOLR_FIELD_TYPE_DATETIME) {

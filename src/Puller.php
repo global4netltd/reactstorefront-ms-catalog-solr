@@ -4,8 +4,11 @@ namespace G4NReact\MsCatalogSolr;
 
 use G4NReact\MsCatalog\Document;
 use G4NReact\MsCatalog\PullerInterface;
+use G4NReact\MsCatalog\QueryInterface;
+use G4NReact\MsCatalog\ResponseInterface;
 use G4NReact\MsCatalogSolr\Config;
 use G4NReact\MsCatalogSolr\Query;
+use G4NReact\MsCatalogSolr\Query\ProductQuery;
 use G4NReact\MsCatalogSolr\Response;
 use Solarium\Client;
 
@@ -37,13 +40,26 @@ class Puller implements PullerInterface
     }
 
     /**
-     * @param Query $query
-     * @return Response
+     * @ToDo: Temporarily solution - change this ASAP
+     * @return ProductQuery
      */
-    public function pull(Query $query)
+    public function getQuery(): ProductQuery
+    {
+        return new ProductQuery();
+    }
+
+    /**
+     * @param QueryInterface $query
+     * @return ResponseInterface
+     */
+    public function pull(QueryInterface $query = null): ResponseInterface
     {
         $solarium = $this->client;
         $response = new Response();
+
+        if (!$query) {
+            return $response;
+        }
 
         // get a select query instance
         $solariumQuery = $solarium->createSelect();
@@ -222,7 +238,6 @@ class Puller implements PullerInterface
     {
         $nameParts = explode('_', $solrFieldName);
 
-        $name = $solrFieldName;
         $type = Helper::FIELD_TYPE_DEFAULT;
         $indexable = true;
         $multiValue = false;
@@ -244,7 +259,7 @@ class Puller implements PullerInterface
 
         $name = implode('_', $nameParts);
 
-        return new Document\Field($name, $value, $type, $indexable);
+        return new Document\Field($name, $value, $type, $indexable, $multiValue);
     }
 
     /**

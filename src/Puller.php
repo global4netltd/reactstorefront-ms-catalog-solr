@@ -6,11 +6,12 @@ use G4NReact\MsCatalog\Document;
 use G4NReact\MsCatalog\PullerInterface;
 use G4NReact\MsCatalog\QueryInterface;
 use G4NReact\MsCatalog\ResponseInterface;
-use G4NReact\MsCatalogSolr\Config;
+use G4NReact\MsCatalog\ConfigInterface;
+use G4NReact\MsCatalogSolr\Config as SolrConfig;
 use G4NReact\MsCatalogSolr\Query;
 use G4NReact\MsCatalogSolr\Query\ProductQuery;
 use G4NReact\MsCatalogSolr\Response;
-use Solarium\Client;
+use Solarium\Client as SolariumClient;
 
 /**
  * Class Puller
@@ -19,24 +20,24 @@ use Solarium\Client;
 class Puller implements PullerInterface
 {
     /**
-     * @var \G4NReact\MsCatalogSolr\Config Config Configuration object
+     * @var SolrConfig Config Configuration object
      */
     private $config;
 
     /**
-     * @var \Solarium\Client Client Solarium client
+     * @var SolariumClient Client Solarium client
      */
     private $client;
 
     /**
      * Puller constructor
      *
-     * @param Config $config
+     * @param ConfigInterface $config
      */
-    public function __construct(Config $config)
+    public function __construct(ConfigInterface $config)
     {
-        $this->config = $config;
-        $this->client = new Client($this->getConfigArray());
+        $this->config = new SolrConfig($config);
+        $this->client = new SolariumClient($this->config->getConfigArray());
     }
 
     /**
@@ -90,7 +91,7 @@ class Puller implements PullerInterface
             $statsSet = $solariumQuery->getStats();
         }
 
-        if ($facetSet && ($facets = $query->getFacetFilds())) {
+        if ($facetSet && ($facets = $query->getFacetFields()) && is_array($facets)) {
             // create a facet field instance and set options
             foreach ($facets as $facet) {
                 $facetSet->createFacetField($facet)->setField($facet);

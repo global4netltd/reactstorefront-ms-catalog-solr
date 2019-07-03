@@ -3,11 +3,12 @@
 namespace G4NReact\MsCatalogSolr;
 
 use Exception;
+use G4NReact\MsCatalog\ConfigInterface;
 use G4NReact\MsCatalog\Document;
 use G4NReact\MsCatalog\PullerInterface;
 use G4NReact\MsCatalog\PusherInterface;
 use G4NReact\MsCatalog\ResponseInterface;
-use G4NReact\MsCatalog\ConfigInterface;
+use G4NReact\MsCatalogSolr\Config as SolrConfig;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
 use Iterator;
 use Solarium\Client;
@@ -18,6 +19,8 @@ use Solarium\Client;
  */
 class Pusher implements PusherInterface
 {
+    const DEFAULT_PAGESIZE = 500;
+
     /**
      * @var SolrConfig
      */
@@ -30,6 +33,7 @@ class Pusher implements PusherInterface
 
     /**
      * Pusher constructor
+     *
      * @param ConfigInterface $config
      */
     public function __construct(ConfigInterface $config)
@@ -40,15 +44,16 @@ class Pusher implements PusherInterface
 
     /**
      * @param Iterator|PullerInterface $documents
+     *
      * @return ResponseInterface
      */
     public function push($documents): ResponseInterface
     {
-        $pageSize = $this->config->getPageSize();
+        $pageSize = $this->config->getPageSize() ? $this->config->getPageSize() : self::DEFAULT_PAGESIZE;
+
         $response = new Response();
         if ($documents) {
             try {
-
                 $update = $this->client->createUpdate();
 
                 // @ToDo: delete index before reindexing if setting == true -> set delete query eg '*:*' or 'product_type:"category"'
@@ -57,7 +62,7 @@ class Pusher implements PusherInterface
                 $i = 0;
                 /** @var Document $document */
                 foreach ($documents as $document) {
-                    if($i < $pageSize) {
+                    if ($i < $pageSize) {
                         $doc = $update->createDocument();
 
                         $doc->id = (string)$document->getUniqueId();
@@ -66,7 +71,12 @@ class Pusher implements PusherInterface
 
                         /** @var Document\Field $field */
                         foreach ($document->getData() as $field) {
-
+                            if (!$field->getValue()) {
+                                continue;
+                            }
+                            if (!$field->getIndexable()) {
+                                $field->setIndexable($this->checkIfIndexedFieldName($field->getName()));
+                            }
                             $solrFieldName = $field->getName()
                                 . (Helper::$mapFieldType[$field->getType()] ?? Helper::SOLR_FIELD_TYPE_DEFAULT)
                                 . ($field->getIndexable() ? '' : Helper::SOLR_NOT_INDEXABLE_MARK)
@@ -89,21 +99,44 @@ class Pusher implements PusherInterface
                         $update = $this->client->createUpdate();
                     }
                 }
-
                 if($i > 0) {
                     $update->addCommit();
-                    $result = $this->client->update($update);
                 }
+                $result = $this->client->update($update);
 
                 $response->setStatusCode($result->getResponse()->getStatusCode())
                     ->setStatusMessage($result->getResponse()->getStatusMessage());
-
             } catch (Exception $e) {
                 echo $e->getMessage();
             }
         }
 
         return $response;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getIndexedFieldNamesTemporary()
+    {
+        return [
+            'entity_id',
+            'store_id',
+            'url_key',
+            'parent_id',
+            'path',
+            'sku'
+        ];
+    }
+
+    /**
+     * @param string $fieldName
+     *
+     * @return bool
+     */
+    protected function checkIfIndexedFieldName(string $fieldName)
+    {
+        return in_array($fieldName, $this->getIndexedFieldNamesTemporary());
     }
 
     /**

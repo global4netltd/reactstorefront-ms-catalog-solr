@@ -3,11 +3,11 @@
 namespace G4NReact\MsCatalogSolr;
 
 use Exception;
+use G4NReact\MsCatalog\ConfigInterface;
 use G4NReact\MsCatalog\Document;
 use G4NReact\MsCatalog\PullerInterface;
 use G4NReact\MsCatalog\PusherInterface;
 use G4NReact\MsCatalog\ResponseInterface;
-use G4NReact\MsCatalog\ConfigInterface;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
 use Iterator;
 use Solarium\Client;
@@ -48,7 +48,6 @@ class Pusher implements PusherInterface
         $response = new Response();
         if ($documents) {
             try {
-
                 $update = $this->client->createUpdate();
 
                 // @ToDo: delete index before reindexing if setting == true -> set delete query eg '*:*' or 'product_type:"category"'
@@ -57,7 +56,7 @@ class Pusher implements PusherInterface
                 $i = 0;
                 /** @var Document $document */
                 foreach ($documents as $document) {
-                    if($i < $pageSize) {
+                    if ($i < $pageSize) {
                         $doc = $update->createDocument();
 
                         $doc->id = (string)$document->getUniqueId();
@@ -66,19 +65,9 @@ class Pusher implements PusherInterface
 
                         /** @var Document\Field $field */
                         foreach ($document->getData() as $field) {
-                            if($field->getValue() && !empty($field->getValue())) {
-                                $solrFieldName = $field->getName()
-                                    . (Helper::$mapFieldType[$field->getType()] ?? Helper::SOLR_FIELD_TYPE_DEFAULT)
-                                    . ($field->getIndexable() ? '' : Helper::SOLR_NOT_INDEXABLE_MARK)
-                                    . Helper::SOLR_MULTI_VALUE_MARK;
-
-                                $solrFieldValue = $field->getValue();
-                                if (isset(Helper::$mapFieldType[$field->getType()]) && Helper::$mapFieldType[$field->getType()] === Helper::SOLR_FIELD_TYPE_DATETIME) {
-                                    $solrFieldValue = date(Helper::SOLR_DATETIME_FORMAT, strtotime($field->getValue()));
-                                }
-
-                                $doc->{$solrFieldName} = $solrFieldValue;
-
+                            if (!$field->getValue()) {
+                                continue;
+                            }
                             $solrFieldName = $field->getName()
                                 . (Helper::$mapFieldType[$field->getType()] ?? Helper::SOLR_FIELD_TYPE_DEFAULT)
                                 . ($field->getIndexable() ? '' : Helper::SOLR_NOT_INDEXABLE_MARK)
@@ -88,6 +77,8 @@ class Pusher implements PusherInterface
                             if (isset(Helper::$mapFieldType[$field->getType()]) && Helper::$mapFieldType[$field->getType()] === Helper::SOLR_FIELD_TYPE_DATETIME) {
                                 $solrFieldValue = date(Helper::SOLR_DATETIME_FORMAT, strtotime($field->getValue()));
                             }
+
+                            $doc->{$solrFieldName} = $solrFieldValue;
                         }
 
                         $i++;
@@ -100,14 +91,13 @@ class Pusher implements PusherInterface
                     }
                 }
 
-                if($i > 0) {
+                if ($i > 0) {
                     $update->addCommit();
                     $result = $this->client->update($update);
                 }
 
                 $response->setStatusCode($result->getResponse()->getStatusCode())
                     ->setStatusMessage($result->getResponse()->getStatusMessage());
-
             } catch (Exception $e) {
                 echo $e->getMessage();
             }

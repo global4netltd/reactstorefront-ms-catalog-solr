@@ -30,6 +30,7 @@ class Pusher implements PusherInterface
 
     /**
      * Pusher constructor
+     *
      * @param ConfigInterface $config
      */
     public function __construct(ConfigInterface $config)
@@ -40,6 +41,7 @@ class Pusher implements PusherInterface
 
     /**
      * @param Iterator|PullerInterface $documents
+     *
      * @return ResponseInterface
      */
     public function push($documents): ResponseInterface
@@ -67,6 +69,9 @@ class Pusher implements PusherInterface
                         foreach ($document->getData() as $field) {
                             if (!$field->getValue()) {
                                 continue;
+                            }
+                            if (!$field->getIndexable()) {
+                                $field->setIndexable($this->checkIfIndexedFieldName($field->getName()));
                             }
                             $solrFieldName = $field->getName()
                                 . (Helper::$mapFieldType[$field->getType()] ?? Helper::SOLR_FIELD_TYPE_DEFAULT)
@@ -104,6 +109,31 @@ class Pusher implements PusherInterface
         }
 
         return $response;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getIndexedFieldNamesTemporary()
+    {
+        return [
+            'entity_id',
+            'store_id',
+            'url_key',
+            'parent_id',
+            'path',
+            'sku'
+        ];
+    }
+
+    /**
+     * @param string $fieldName
+     *
+     * @return bool
+     */
+    protected function checkIfIndexedFieldName(string $fieldName)
+    {
+        return in_array($fieldName, $this->getIndexedFieldNamesTemporary());
     }
 
     /**

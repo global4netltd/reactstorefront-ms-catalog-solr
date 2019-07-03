@@ -3,6 +3,7 @@
 namespace G4NReact\MsCatalogSolr\Client;
 
 use G4NReact\MsCatalog\Client\ClientInterface;
+use G4NReact\MsCatalogSolr\Config as SolrConfig;
 use Solarium\Core\Query\QueryInterface;
 use Solarium\Exception\UnexpectedValueException;
 
@@ -16,6 +17,10 @@ class Client implements ClientInterface
      * @var \Solarium\Client
      */
     protected $client;
+    /**
+     * @var \G4NReact\MsCatalogSolr\Config
+     */
+    protected $config;
 
     /**
      * Client constructor.
@@ -24,7 +29,8 @@ class Client implements ClientInterface
      */
     public function __construct($config)
     {
-        $this->client = new \Solarium\Client($config);
+        $this->config = new SolrConfig($config);
+        $this->client = new \Solarium\Client($this->config->getConfigArray());
     }
 
     /**

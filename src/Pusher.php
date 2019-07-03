@@ -9,7 +9,6 @@ use G4NReact\MsCatalog\PullerInterface;
 use G4NReact\MsCatalog\PusherInterface;
 use G4NReact\MsCatalog\ResponseInterface;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
-use G4NReact\MsCatalogSolr\Config as SolrConfig;
 use Iterator;
 use Solarium\Client;
 

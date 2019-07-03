@@ -95,11 +95,10 @@ class Pusher implements PusherInterface
                         $update = $this->client->createUpdate();
                     }
                 }
-
-                if ($i > 0) {
+                if($i > 0) {
                     $update->addCommit();
-                    $result = $this->client->update($update);
                 }
+                $result = $this->client->update($update);
 
                 $response->setStatusCode($result->getResponse()->getStatusCode())
                     ->setStatusMessage($result->getResponse()->getStatusMessage());

@@ -48,7 +48,7 @@ class Pusher implements PusherInterface
      */
     public function push($documents): ResponseInterface
     {
-        $pageSize = $this->config->getPageSize() ? $this->config->getPageSize() : self::DEFAULT_PAGESIZE;
+        $pageSize = $this->config->getPageSize() ?: self::DEFAULT_PAGESIZE;
 
         $response = new Response();
         if ($documents) {

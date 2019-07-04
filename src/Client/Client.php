@@ -50,15 +50,31 @@ class Client implements ClientInterface
     }
 
     /**
-     * @param int $id
+     * @param int|string $id
      *
-     * @return \Solarium\Core\Query\Result\ResultInterface|\Solarium\QueryType\Update\Result
+     * @return mixed|\Solarium\Core\Query\Result\ResultInterface|\Solarium\QueryType\Update\Result
      */
-    public function delete($id)
+    public function deleteById($id)
     {
         $update = $this->client->createUpdate();
         $update
             ->addDeleteById($id)
+            ->addCommit();
+
+        return $this->client->update($update);
+    }
+
+    /**
+     * @param array $ids
+     *
+     * @return \Solarium\Core\Query\Result\ResultInterface|\Solarium\QueryType\Update\Result
+     */
+    public function deleteByIds(array $ids)
+    {
+        $update = $this->client->createUpdate();
+
+        $update
+            ->addDeleteByIds($ids)
             ->addCommit();
 
         return $this->client->update($update);

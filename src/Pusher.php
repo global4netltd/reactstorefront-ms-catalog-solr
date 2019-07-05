@@ -53,7 +53,7 @@ class Pusher implements PusherInterface
                 $update = $this->client->createUpdate();
 
                 // @ToDo: delete index before reindexing if setting == true -> set delete query eg '*:*' or 'product_type:"category"'
-                $this->clearIndex();
+//                $this->clearIndex();
 
                 $i = 0;
                 /** @var Document $document */
@@ -95,11 +95,10 @@ class Pusher implements PusherInterface
                         $update = $this->client->createUpdate();
                     }
                 }
-
-                if ($i > 0) {
+                if($i > 0) {
                     $update->addCommit();
-                    $result = $this->client->update($update);
                 }
+                $result = $this->client->update($update);
 
                 $response->setStatusCode($result->getResponse()->getStatusCode())
                     ->setStatusMessage($result->getResponse()->getStatusMessage());

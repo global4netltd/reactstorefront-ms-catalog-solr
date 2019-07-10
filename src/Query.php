@@ -26,4 +26,9 @@ class Query extends AbstractQuery
 
         return $client->query($query);
     }
+
+    public function getResponse()
+    {
+        // TODO: Implement getResponse() method.
+    }
 }

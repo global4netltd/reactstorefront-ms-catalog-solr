@@ -4,8 +4,13 @@ namespace G4NReact\MsCatalogSolr\Client;
 
 use G4NReact\MsCatalog\Client\ClientInterface;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
+use G4NReact\MsCatalogSolr\Config;
+use Solarium\Client as SolariumClient;
 use Solarium\Core\Query\QueryInterface;
+use Solarium\Core\Query\Result\ResultInterface;
 use Solarium\Exception\UnexpectedValueException;
+use Solarium\QueryType\Select\Query\Query;
+use Solarium\QueryType\Update\Result;
 
 /**
  * Class Client
@@ -14,11 +19,12 @@ use Solarium\Exception\UnexpectedValueException;
 class Client implements ClientInterface
 {
     /**
-     * @var \Solarium\Client
+     * @var SolariumClient
      */
     protected $client;
+
     /**
-     * @var \G4NReact\MsCatalogSolr\Config
+     * @var Config
      */
     protected $config;
 
@@ -30,13 +36,13 @@ class Client implements ClientInterface
     public function __construct($config)
     {
         $this->config = new SolrConfig($config);
-        $this->client = new \Solarium\Client($this->config->getConfigArray());
+        $this->client = new SolariumClient($this->config->getConfigArray());
     }
 
     /**
      * @param array $fields
      *
-     * @return \Solarium\Core\Query\Result\ResultInterface|\Solarium\QueryType\Update\Result
+     * @return Result
      */
     public function add($fields)
     {
@@ -52,7 +58,7 @@ class Client implements ClientInterface
     /**
      * @param int|string $id
      *
-     * @return mixed|\Solarium\Core\Query\Result\ResultInterface|\Solarium\QueryType\Update\Result
+     * @return Result
      */
     public function deleteById($id)
     {
@@ -67,7 +73,7 @@ class Client implements ClientInterface
     /**
      * @param array $ids
      *
-     * @return \Solarium\Core\Query\Result\ResultInterface|\Solarium\QueryType\Update\Result
+     * @return Result
      */
     public function deleteByIds(array $ids)
     {
@@ -84,7 +90,7 @@ class Client implements ClientInterface
      * @param $field
      * @param $value
      *
-     * @return \Solarium\Core\Query\Result\ResultInterface|\Solarium\QueryType\Update\Result
+     * @return Result
      */
     public function deleteByField($field, $value)
     {
@@ -99,7 +105,7 @@ class Client implements ClientInterface
     /**
      * @param array $options
      *
-     * @return \Solarium\Core\Query\Result\ResultInterface
+     * @return ResultInterface
      */
     public function get($options)
     {
@@ -111,7 +117,7 @@ class Client implements ClientInterface
     /**
      * @param $query
      *
-     * @return \Solarium\Core\Query\Result\ResultInterface
+     * @return ResultInterface
      */
     public function query($query)
     {
@@ -126,10 +132,18 @@ class Client implements ClientInterface
     /**
      * @param string $type
      *
-     * @return \Solarium\Core\Query\AbstractQuery|\Solarium\Core\Query\QueryInterface
+     * @return QueryInterface
      */
     public function prepareQuery(string $type)
     {
         return $this->client->createQuery($type);
+    }
+
+    /**
+     * @return Query
+     */
+    public function getSelect()
+    {
+        return $this->client->createSelect();
     }
 }

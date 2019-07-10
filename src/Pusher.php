@@ -56,8 +56,15 @@ class Pusher implements PusherInterface
 //                $this->clearIndex();
 
                 $i = 0;
+                $counter = 0;
                 /** @var Document $document */
                 foreach ($documents as $document) {
+                    if (($counter === 0) || ($counter % 100 === 0)) {
+                        $start = microtime(true);
+                    }
+
+                    echo $counter . PHP_EOL;
+
                     if ($i < $pageSize) {
                         $doc = $update->createDocument();
 
@@ -93,6 +100,9 @@ class Pusher implements PusherInterface
                         $result = $this->client->update($update);
                         $i = 0;
                         $update = $this->client->createUpdate();
+                    }
+                    if (++$counter % 100 === 0) {
+                        echo (round(microtime(true) - $start, 4)) . 's | ' . $counter . PHP_EOL;
                     }
                 }
                 if($i > 0) {

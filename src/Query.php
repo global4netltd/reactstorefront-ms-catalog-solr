@@ -2,8 +2,6 @@
 
 namespace G4NReact\MsCatalogSolr;
 
-
-
 /**
  * Class Query
  * @package G4NReact\MsCatalogSolr\Query

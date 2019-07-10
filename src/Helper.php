@@ -9,7 +9,8 @@ namespace G4NReact\MsCatalogSolr;
 class Helper
 {
     const SOLR_FIELD_TYPE_DEFAULT = '_s';
-    const SOLR_FIELD_TYPE_TEXT = '_s';
+    const SOLR_FIELD_TYPE_STRING = '_s';
+    const SOLR_FIELD_TYPE_TEXT = '_t';
     const SOLR_FIELD_TYPE_INT = '_i';
     const SOLR_FIELD_TYPE_DATETIME = '_dt';
     const SOLR_FIELD_TYPE_FLOAT = '_f';
@@ -28,7 +29,7 @@ class Helper
      */
     public static $mapFieldType = [
         'static'   => self::SOLR_FIELD_TYPE_TEXT,
-        'string'   => self::SOLR_FIELD_TYPE_TEXT,
+        'string'   => self::SOLR_FIELD_TYPE_STRING,
         'int'      => self::SOLR_FIELD_TYPE_INT,
         'integer'  => self::SOLR_FIELD_TYPE_INT,
         'text'     => self::SOLR_FIELD_TYPE_TEXT,

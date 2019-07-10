@@ -6,6 +6,8 @@ use G4NReact\MsCatalog\Document;
 use G4NReact\MsCatalog\ResponseInterface;
 
 /**
+ * deprecated moved to ms-catalog
+ *
  * Class Response
  * @package G4NReact\MsCatalogSolr
  */

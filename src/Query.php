@@ -11,6 +11,7 @@ use Solarium\Core\Query\Result\ResultInterface;
  */
 class Query extends AbstractQuery
 {
+    /** text, sort, filter, page size, query text */
     /**
      * @return ResultInterface
      */
@@ -18,7 +19,10 @@ class Query extends AbstractQuery
     {
         /** @var \G4NReact\MsCatalogSolr\Client\Client $client */
         $client = $this->getClient();
-        $query = $client->getSelect()->setFields($this->fields)->addSorts($this->sort);
+        $query = $client
+            ->getSelect()
+            ->setFields($this->fields)
+            ->addSorts($this->sort);
 
         return $client->query($query);
     }

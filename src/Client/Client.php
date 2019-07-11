@@ -3,8 +3,13 @@
 namespace G4NReact\MsCatalogSolr\Client;
 
 use G4NReact\MsCatalog\Client\ClientInterface;
+use G4NReact\MsCatalog\PullerInterface;
+use G4NReact\MsCatalog\PusherInterface;
+use G4NReact\MsCatalog\QueryBuilderInterface;
+use G4NReact\MsCatalog\ResponseInterface;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
 use G4NReact\MsCatalogSolr\Config;
+use G4NReact\MsCatalogSolr\Response;
 use Solarium\Client as SolariumClient;
 use Solarium\Core\Query\QueryInterface;
 use Solarium\Core\Query\Result\ResultInterface;
@@ -42,9 +47,9 @@ class Client implements ClientInterface
     /**
      * @param array $fields
      *
-     * @return Result
+     * @return \G4NReact\MsCatalog\ResponseInterface
      */
-    public function add($fields)
+    public function add($fields) : ResponseInterface
     {
         $update = $this->client->createUpdate();
         $document = $update->createDocument($fields);
@@ -52,30 +57,39 @@ class Client implements ClientInterface
             ->addDocument($document)
             ->addCommit();
 
-        return $this->client->update($update);
+        $result =  $this->client->update($update);
+        $response = new Response();
+
+        return $response
+            ->setStatusMessage($result->getResponse()->getStatusMessage())
+            ->setStatusCode($result->getResponse()->getStatusCode());
     }
 
     /**
      * @param int|string $id
      *
-     * @return Result
+     * @return \G4NReact\MsCatalog\ResponseInterface
      */
-    public function deleteById($id)
+    public function deleteById($id) : ResponseInterface
     {
         $update = $this->client->createUpdate();
         $update
             ->addDeleteById($id)
             ->addCommit();
 
-        return $this->client->update($update);
+        $result = $this->client->update($update);
+        $response = new Response();
+        return $response
+            ->setStatusCode($result->getResponse()->getStatusCode())
+            ->setStatusMessage($result->getResponse()->getStatusMessage());
     }
 
     /**
      * @param array $ids
      *
-     * @return Result
+     * @return \G4NReact\MsCatalog\ResponseInterface
      */
-    public function deleteByIds(array $ids)
+    public function deleteByIds(array $ids) : ResponseInterface
     {
         $update = $this->client->createUpdate();
 
@@ -83,7 +97,11 @@ class Client implements ClientInterface
             ->addDeleteByIds($ids)
             ->addCommit();
 
-        return $this->client->update($update);
+        $result = $this->client->update($update);
+        $response = new Response();
+        return $response
+            ->setStatusCode($result->getResponse()->getStatusCode())
+            ->setStatusMessage($result->getResponse()->getStatusMessage());
     }
 
     /**
@@ -102,31 +120,49 @@ class Client implements ClientInterface
         return $this->client->update($update);
     }
 
+
     /**
      * @param array $options
      *
-     * @return ResultInterface
+     * @return \G4NReact\MsCatalog\ResponseInterface
      */
-    public function get($options)
+    public function get($options) : ResponseInterface
     {
         $query = $this->client->createSelect($options);
 
-        return $this->client->execute($query);
+        $result = $this->client->execute($query);
+
+        $response = new Response();
+        return $response
+            ->setDocumentsCollection($result->getData())
+            ->setNumFound(count($result->getData()))
+            ->setStatusCode($result->getResponse()->getStatusCode())
+            ->setStatusMessage($result->getResponse()->getStatusMessage());
     }
 
     /**
      * @param $query
      *
-     * @return ResultInterface
+     * @return \G4NReact\MsCatalog\ResponseInterface
      */
-    public function query($query)
+    public function query($query) : ResponseInterface
     {
         if (!($query instanceof QueryInterface)) {
             throw new UnexpectedValueException(
                 'query must implement Query Interface'
             );
         }
-        return $this->client->execute($query);
+        $result = $this->client->execute($query);
+        $response = new Response();
+
+        return $response
+            ->setDocumentsCollection($result->getData()['response']['docs'])
+            ->setNumFound($result->getData()['response']['numFound'])
+            ->setFacets($result->getData()['facet_counts']['facet_queries'])
+            ->setStats($result->getData()['stats']['stats_fields'])
+            ->setCurrentPage($result->getQuery()->getOption('start'))
+            ->setStatusMessage($result->getResponse()->getStatusMessage())
+            ->setStatusCode($result->getResponse()->getStatusCode());
     }
 
     /**
@@ -145,5 +181,20 @@ class Client implements ClientInterface
     public function getSelect()
     {
         return $this->client->createSelect();
+    }
+
+    public function getPusher(): PusherInterface
+    {
+        // TODO: Implement getPusher() method.
+    }
+
+    public function getPuller(): PullerInterface
+    {
+        // TODO: Implement getPuller() method.
+    }
+
+    public function getQueryBuilder(): QueryBuilderInterface
+    {
+        // TODO: Implement getQueryBuilder() method.
     }
 }

@@ -19,27 +19,26 @@ class Query extends AbstractQuery
     protected $query;
 
     /**
-     * @return ResultInterface
+     * @return \G4NReact\MsCatalog\ResponseInterface
      */
-    public function buildQuery() : ResultInterface
+    public function buildQuery(): \G4NReact\MsCatalog\ResponseInterface
     {
         /** @var \G4NReact\MsCatalogSolr\Client\Client $client */
         $client = $this->getClient();
 
         $query = $client
             ->getSelect()
-            ->setQuery($this->getQueryText())
-            ->setFilterQueries($this->prepareFilterQueries())
-            ->setFields($this->prepareFields())
+            ->setQuery($this->getQueryText() ?? '*:*')
             ->setStart($this->getPageStart())
             ->setRows($this->getPageSize())
-            ->addSorts($this->sort);
+            ->setFields($this->prepareFields());
 
         $this->query = $query;
+        $this->addFiltersToQuery();
         $this->addFacetsToQuery();
         $this->addStatsToQuery();
 
-        return $client->query($query);
+        return $client->query($this->query);
     }
 
     public function getResponse()
@@ -48,22 +47,29 @@ class Query extends AbstractQuery
     }
 
     /**
-     * @return array
+     * Add filters to query
      */
-    protected function prepareFilterQueries() : array
+    protected function addFiltersToQuery()
     {
-        $filtersQuery = [];
-
         foreach ($this->filters as $key => $filter) {
             if (!isset($filter[self::FIELD]) || !isset($filter[self::NEGATIVE])) {
                 continue;
             }
-            /** @var Field $field */
-            $field = $filter[self::FIELD];
-            $filtersQuery[$key] = $filter[self::NEGATIVE] ? -$field->getValue() : $field->getValue();
-        }
 
-        return $filtersQuery;
+            $this->query->createFilterQuery($key)->setQuery($this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]));
+        }
+    }
+
+    /**
+     * @param Field $field
+     *
+     * @param bool $isNegative
+     *
+     * @return string
+     */
+    protected function prepareFilterQuery(Field $field, bool $isNegative)
+    {
+        return (string)$isNegative ? '-' : '' . $field->getName() . ':' . $field->getValue();
     }
 
     /**
@@ -71,7 +77,19 @@ class Query extends AbstractQuery
      */
     protected function addFacetsToQuery()
     {
-        $this->query->getFacetSet()->addFacets($this->facets);
+        foreach ($this->facets as $key => $facet) {
+            $this->query->getFacetSet()->createFacetQuery($key)->setQuery($this->prepareQueryFacet($facet));
+        }
+    }
+
+    /**
+     * @param Field $field
+     *
+     * @return string
+     */
+    protected function prepareQueryFacet($field)
+    {
+        return (string)$field->getName() . ': ' . $field->getValue();
     }
 
     /**
@@ -79,13 +97,19 @@ class Query extends AbstractQuery
      */
     protected function addStatsToQuery()
     {
-        $this->query->getStats()->addFacets($this->facets);
+        /**
+         * @var  $key
+         * @var Field $stat
+         */
+        foreach ($this->stats as $key => $stat) {
+            $this->query->getStats()->addFacet($key)->createField($stat->getName());
+        }
     }
 
     /**
      * @return array
      */
-    protected function prepareFields() : array
+    protected function prepareFields(): array
     {
         $fields = [];
         /** @var Field $field */
@@ -94,5 +118,15 @@ class Query extends AbstractQuery
         }
 
         return $fields;
+    }
+
+    /**
+     * set Sorts
+     */
+    protected function setSorts()
+    {
+        if ($this->sort) {
+            $this->query->setSorts($this->sort);
+        }
     }
 }

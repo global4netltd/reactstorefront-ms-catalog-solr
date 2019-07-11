@@ -3,20 +3,20 @@
 namespace G4NReact\MsCatalogSolr\Client;
 
 use G4NReact\MsCatalog\Client\ClientInterface;
+use G4NReact\MsCatalog\Config;
 use G4NReact\MsCatalog\PullerInterface;
 use G4NReact\MsCatalog\PusherInterface;
-use G4NReact\MsCatalog\QueryBuilderInterface;
+use G4NReact\MsCatalog\QueryInterface as MsCatalogQueryInterface;
+use G4NReact\MsCatalog\ResponseInterface;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
-use G4NReact\MsCatalogSolr\Config;
 use G4NReact\MsCatalogSolr\Puller;
 use G4NReact\MsCatalogSolr\Pusher;
-use G4NReact\MsCatalogSolr\QueryBuilder;
+use G4NReact\MsCatalogSolr\Query as MsCatalogSolrQuery;
+use G4NReact\MsCatalogSolr\Response;
 use Solarium\Client as SolariumClient;
-use Solarium\Core\Query\QueryInterface;
-use Solarium\Core\Query\Result\ResultInterface;
+use Solarium\Core\Query\QueryInterface as SolariumQueryInterface;
 use Solarium\Exception\UnexpectedValueException;
 use Solarium\QueryType\Select\Query\Query;
-use Solarium\QueryType\Update\Result;
 
 /**
  * Class Client
@@ -35,22 +35,27 @@ class Client implements ClientInterface
     protected $config;
 
     /**
+     * @var SolrConfig
+     */
+    protected $solrConfig;
+
+    /**
      * Client constructor.
      *
      * @param $config
      */
     public function __construct($config)
     {
-        $this->config = new SolrConfig($config);
-        $this->client = new SolariumClient($this->config->getConfigArray());
+        $this->config = $config;
+        $this->solrConfig = new SolrConfig($config);
+        $this->client = new SolariumClient($this->solrConfig->getConfigArray());
     }
 
     /**
      * @param array $fields
-     *
-     * @return Result
+     * @return ResponseInterface
      */
-    public function add($fields)
+    public function add($fields): ResponseInterface
     {
         $update = $this->client->createUpdate();
         $document = $update->createDocument($fields);
@@ -64,9 +69,9 @@ class Client implements ClientInterface
     /**
      * @param int|string $id
      *
-     * @return Result
+     * @return ResponseInterface
      */
-    public function deleteById($id)
+    public function deleteById($id): ResponseInterface
     {
         $update = $this->client->createUpdate();
         $update
@@ -79,9 +84,9 @@ class Client implements ClientInterface
     /**
      * @param array $ids
      *
-     * @return Result
+     * @return ResponseInterface
      */
-    public function deleteByIds(array $ids)
+    public function deleteByIds(array $ids): ResponseInterface
     {
         $update = $this->client->createUpdate();
 
@@ -96,9 +101,9 @@ class Client implements ClientInterface
      * @param $field
      * @param $value
      *
-     * @return Result
+     * @return ResponseInterface
      */
-    public function deleteByField($field, $value)
+    public function deleteByField($field, $value): ResponseInterface
     {
         $update = $this->client->createUpdate();
         $update
@@ -111,9 +116,9 @@ class Client implements ClientInterface
     /**
      * @param array $options
      *
-     * @return ResultInterface
+     * @return ResponseInterface
      */
-    public function get($options)
+    public function get($options): ResponseInterface
     {
         $query = $this->client->createSelect($options);
 
@@ -123,11 +128,11 @@ class Client implements ClientInterface
     /**
      * @param $query
      *
-     * @return ResultInterface
+     * @return ResponseInterface
      */
-    public function query($query)
+    public function query($query): ResponseInterface
     {
-        if (!($query instanceof QueryInterface)) {
+        if (!($query instanceof SolariumQueryInterface)) {
             throw new UnexpectedValueException(
                 'query must implement Query Interface'
             );
@@ -138,7 +143,7 @@ class Client implements ClientInterface
     /**
      * @param string $type
      *
-     * @return QueryInterface
+     * @return SolariumQueryInterface
      */
     public function prepareQuery(string $type)
     {
@@ -170,10 +175,10 @@ class Client implements ClientInterface
     }
 
     /**
-     * @return QueryBuilderInterface
+     * @return MsCatalogQueryInterface
      */
-    public function getQueryBuilder(): QueryBuilderInterface
+    public function getQuery(): MsCatalogQueryInterface
     {
-        return new QueryBuilder($this->config, $this->client);
+        return new MsCatalogSolrQuery($this->config, $this);
     }
 }

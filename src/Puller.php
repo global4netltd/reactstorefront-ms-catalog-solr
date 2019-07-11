@@ -9,8 +9,6 @@ use G4NReact\MsCatalog\ResponseInterface;
 use G4NReact\MsCatalog\ConfigInterface;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
 use G4NReact\MsCatalogSolr\Query;
-use G4NReact\MsCatalogSolr\Query\ProductQuery;
-use G4NReact\MsCatalogSolr\Response;
 use Solarium\Client as SolariumClient;
 use Solarium\QueryType\Select\Result\Result;
 
@@ -40,15 +38,6 @@ class Puller implements PullerInterface
     {
         $this->config = $config;
         $this->client = $client;
-    }
-
-    /**
-     * @ToDo: Temporarily solution - change this ASAP
-     * @return ProductQuery
-     */
-    public function getQuery(): ProductQuery
-    {
-        return new ProductQuery();
     }
 
     /**

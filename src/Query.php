@@ -2,8 +2,11 @@
 
 namespace G4NReact\MsCatalogSolr;
 
+use Exception;
 use G4NReact\MsCatalog\AbstractQuery;
-use Solarium\Core\Query\Result\ResultInterface;
+use G4NReact\MsCatalog\ResponseInterface;
+use G4NReact\MsCatalogSolr\Client\Client as MsCatalogSolrClient;
+use Solarium\QueryType\Select\Query\Query as SolariumSelectQuery;
 
 /**
  * Class Query
@@ -13,22 +16,30 @@ class Query extends AbstractQuery
 {
     /** text, sort, filter, page size, query text */
     /**
-     * @return ResultInterface
+     * @return SolariumSelectQuery
+     * @throws Exception
      */
     public function buildQuery()
     {
-        /** @var \G4NReact\MsCatalogSolr\Client\Client $client */
+        /** @var MsCatalogSolrClient $client */
         $client = $this->getClient();
         $query = $client
             ->getSelect()
             ->setFields($this->fields)
             ->addSorts($this->sort);
 
-        return $client->query($query);
+        return $query;
     }
 
+    /**
+     * @return ResponseInterface
+     * @throws Exception
+     */
     public function getResponse()
     {
-        // TODO: Implement getResponse() method.
+        /** @var MsCatalogSolrClient $client */
+        $client = $this->getClient();
+
+        return $client->query($this->buildQuery());
     }
 }

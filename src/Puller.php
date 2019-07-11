@@ -9,9 +9,8 @@ use G4NReact\MsCatalog\ResponseInterface;
 use G4NReact\MsCatalog\ConfigInterface;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
 use G4NReact\MsCatalogSolr\Query;
-use G4NReact\MsCatalogSolr\Query\ProductQuery;
-use G4NReact\MsCatalogSolr\Response;
 use Solarium\Client as SolariumClient;
+use Solarium\QueryType\Select\Result\Result;
 
 /**
  * Class Puller
@@ -25,7 +24,7 @@ class Puller implements PullerInterface
     private $config;
 
     /**
-     * @var SolariumClient Client Solarium client
+     * @var SolariumClient Solarium client
      */
     private $client;
 
@@ -33,20 +32,12 @@ class Puller implements PullerInterface
      * Puller constructor
      *
      * @param ConfigInterface $config
+     * @param SolariumClient $client
      */
-    public function __construct(ConfigInterface $config)
+    public function __construct(ConfigInterface $config, SolariumClient $client)
     {
-        $this->config = new SolrConfig($config);
-        $this->client = new SolariumClient($this->config->getConfigArray());
-    }
-
-    /**
-     * @ToDo: Temporarily solution - change this ASAP
-     * @return ProductQuery
-     */
-    public function getQuery(): ProductQuery
-    {
-        return new ProductQuery();
+        $this->config = $config;
+        $this->client = $client;
     }
 
     /**
@@ -210,10 +201,10 @@ class Puller implements PullerInterface
     }
 
     /**
-     * @param \Solarium\QueryType\Select\Result\Result $solariumResultSet
+     * @param Result $solariumResultSet
      * @return array
      */
-    protected function getDocuments(\Solarium\QueryType\Select\Result\Result $solariumResultSet)
+    protected function getDocuments(Result $solariumResultSet)
     {
         $documentsCollection = [];
 
@@ -239,7 +230,7 @@ class Puller implements PullerInterface
     {
         $nameParts = explode('_', $solrFieldName);
 
-        $type = Helper::FIELD_TYPE_DEFAULT;
+        $type = FieldHelper::FIELD_TYPE_DEFAULT;
         $indexable = true;
         $multiValue = false;
 
@@ -253,8 +244,8 @@ class Puller implements PullerInterface
             unset($nameParts[count($nameParts) - 1]);
         }
 
-        if (isset(Helper::$mapSolrFieldTypeToFieldType[$nameParts[count($nameParts) - 1]])) {
-            $type = Helper::$mapSolrFieldTypeToFieldType[$nameParts[count($nameParts) - 1]];
+        if (isset(FieldHelper::$mapSolrFieldTypeToFieldType[$nameParts[count($nameParts) - 1]])) {
+            $type = FieldHelper::$mapSolrFieldTypeToFieldType[$nameParts[count($nameParts) - 1]];
             unset($nameParts[count($nameParts) - 1]);
         }
 

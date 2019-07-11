@@ -3,7 +3,6 @@
 namespace G4NReact\MsCatalogSolr;
 
 use G4NReact\MsCatalog\ConfigInterface;
-use G4NReact\MsCatalog\Helper as MsCatalogHelper;
 
 /**
  * Class Config
@@ -11,14 +10,6 @@ use G4NReact\MsCatalog\Helper as MsCatalogHelper;
  */
 class Config
 {
-    const MODE_PUSHER = 'pusher';
-    const MODE_PULLER = 'puller';
-
-    /**
-     * @var string|null
-     */
-    protected $mode = null;
-
     /**
      * @var ConfigInterface
      */
@@ -51,17 +42,6 @@ class Config
      */
     public function getConnectionConfigArray(): array
     {
-        if (!$this->mode) {
-            if ($this->config->getPullerEngine() === MsCatalogHelper::ENGINE_SOLR_VALUE) {
-                $this->mode = self::MODE_PULLER;
-            } elseif ($this->config->getPusherEngine() === MsCatalogHelper::ENGINE_SOLR_VALUE) {
-                $this->mode = self::MODE_PUSHER;
-            } else {
-                // log error, throw exception etc.
-                return [];
-            }
-        }
-
         return [
             'host'       => $this->getHost(),
             'port'       => $this->getPort(),
@@ -75,9 +55,7 @@ class Config
      */
     public function getHost(): string
     {
-        return ($this->mode === self::MODE_PULLER)
-            ? ($this->config->getPullerEngineParams()['connection']['host'] ?? '')
-            : ($this->config->getPusherEngineParams()['connection']['host'] ?? '');
+        return $this->config->getEngineParams()['connection']['host'] ?? '';
     }
 
     /**
@@ -85,9 +63,7 @@ class Config
      */
     public function getPort(): int
     {
-        return ($this->mode === self::MODE_PULLER)
-            ? ($this->config->getPullerEngineParams()['connection']['port'] ?? 0)
-            : ($this->config->getPusherEngineParams()['connection']['port'] ?? 0);
+        return $this->config->getEngineParams()['connection']['port'] ?? 0;
     }
 
     /**
@@ -95,9 +71,7 @@ class Config
      */
     public function getCore(): string
     {
-        return ($this->mode === self::MODE_PULLER)
-            ? ($this->config->getPullerEngineParams()['connection']['core'] ?? '')
-            : ($this->config->getPusherEngineParams()['connection']['core'] ?? '');
+        return $this->config->getEngineParams()['connection']['core'] ?? '';
     }
 
     /**
@@ -105,9 +79,7 @@ class Config
      */
     public function getCollection(): string
     {
-        return ($this->mode === self::MODE_PULLER)
-            ? ($this->config->getPullerEngineParams()['connection']['collection'] ?? '')
-            : ($this->config->getPusherEngineParams()['connection']['collection'] ?? '');
+        return $this->config->getEngineParams()['connection']['collection'] ?? '';
     }
 
     /**
@@ -115,9 +87,8 @@ class Config
      */
     public function getPageSize(): int
     {
-        return ($this->mode === self::MODE_PULLER)
-            ? (int)$this->config->getPullerPageSize()
-            : (int)$this->config->getPusherPageSize();
+        /** @ToDo: Implement puller page size */
+        return (int)$this->config->getPusherPageSize();
     }
 
     /**
@@ -125,8 +96,6 @@ class Config
      */
     public function isClearIndexBeforeReindex(): bool
     {
-        return ($this->mode === self::MODE_PUSHER)
-            ? (bool)$this->config->getPusherDeleteIndex()
-            : false;
+        return (bool)$this->config->getPusherDeleteIndex();
     }
 }

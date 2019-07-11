@@ -67,6 +67,8 @@
   <fieldType name="random" class="solr.RandomSortField" indexed="true"/>
   <fieldType name="string" class="solr.StrField" sortMissingLast="true" docValues="true"/>
   <fieldType name="strings" class="solr.StrField" sortMissingLast="true" docValues="true" multiValued="true"/>
+  <fieldType name="text" class="solr.TextField" sortMissingLast="true" docValues="true"/>
+  <fieldType name="texts" class="solr.TextField" sortMissingLast="true" docValues="true" multiValued="true"/>
 
   <fieldType name="text_cjk" class="solr.TextField" positionIncrementGap="100">
     <analyzer>
@@ -336,8 +338,10 @@
   <dynamicField name="*_s_ni" type="string" indexed="false" stored="true"/>
   <dynamicField name="*_l" type="plong" indexed="true" stored="true"/>
   <dynamicField name="*_l_ni" type="plong" indexed="false" stored="true"/>
-  <dynamicField name="*_t" type="text_general" multiValued="false" indexed="true" stored="true"/>
-  <dynamicField name="*_t_ni" type="text_general" multiValued="false" indexed="false" stored="true"/>
+  <dynamicField name="*_t" type="text" multiValued="false" indexed="true" stored="true"/>
+  <dynamicField name="*_t_ni" type="text" multiValued="false" indexed="false" stored="true"/>
+  <dynamicField name="*_t_mv" type="texts" multiValued="true" indexed="true" stored="true"/>
+  <dynamicField name="*_t_ni_mv" type="texts" multiValued="true" indexed="false" stored="true"/>
   <dynamicField name="*_b" type="boolean" indexed="true" stored="true"/>
   <dynamicField name="*_b_ni" type="boolean" indexed="false" stored="true"/>
   <dynamicField name="*_f" type="pfloat" indexed="true" stored="true"/>

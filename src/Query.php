@@ -2,10 +2,12 @@
 
 namespace G4NReact\MsCatalogSolr;
 
+use Exception;
 use G4NReact\MsCatalog\AbstractQuery;
-use G4NReact\MsCatalog\Document\Field;
-use Solarium\Core\Query\Result\ResultInterface;
+use G4NReact\MsCatalog\ResponseInterface;
+use G4NReact\MsCatalogSolr\Client\Client as MsCatalogSolrClient;
 use Solarium\QueryType\Select\Query\Query as SolariumSelectQuery;
+use G4NReact\MsCatalog\Document\AbstractField;
 
 /**
  * Class Query
@@ -19,9 +21,9 @@ class Query extends AbstractQuery
     protected $query;
 
     /**
-     * @return \G4NReact\MsCatalog\ResponseInterface
+     * @return ResponseInterface
      */
-    public function buildQuery(): \G4NReact\MsCatalog\ResponseInterface
+    public function buildQuery(): ResponseInterface
     {
         /** @var \G4NReact\MsCatalogSolr\Client\Client $client */
         $client = $this->getClient();
@@ -38,12 +40,8 @@ class Query extends AbstractQuery
         $this->addFacetsToQuery();
         $this->addStatsToQuery();
 
+        $result = $client->query($this->query);
         return $client->query($this->query);
-    }
-
-    public function getResponse()
-    {
-        // TODO: Implement getResponse() method.
     }
 
     /**
@@ -61,13 +59,13 @@ class Query extends AbstractQuery
     }
 
     /**
-     * @param Field $field
+     * @param AbstractField $field
      *
      * @param bool $isNegative
      *
      * @return string
      */
-    protected function prepareFilterQuery(Field $field, bool $isNegative)
+    protected function prepareFilterQuery(AbstractField $field, bool $isNegative)
     {
         return (string)$isNegative ? '-' : '' . $field->getName() . ':' . $field->getValue();
     }
@@ -83,7 +81,7 @@ class Query extends AbstractQuery
     }
 
     /**
-     * @param Field $field
+     * @param AbstractField $field
      *
      * @return string
      */
@@ -99,7 +97,7 @@ class Query extends AbstractQuery
     {
         /**
          * @var  $key
-         * @var Field $stat
+         * @var AbstractField $stat
          */
         foreach ($this->stats as $key => $stat) {
             $this->query->getStats()->addFacet($key)->createField($stat->getName());
@@ -112,7 +110,7 @@ class Query extends AbstractQuery
     protected function prepareFields(): array
     {
         $fields = [];
-        /** @var Field $field */
+        /** @var AbstractField $field */
         foreach ($this->fields as $field) {
             $fields [] = $field->getValue();
         }
@@ -128,5 +126,17 @@ class Query extends AbstractQuery
         if ($this->sort) {
             $this->query->setSorts($this->sort);
         }
+    }
+
+    /**
+     * @return ResponseInterface
+     * @throws Exception
+     */
+    public function getResponse()
+    {
+        /** @var MsCatalogSolrClient $client */
+        $client = $this->getClient();
+
+        return $client->query($this->buildQuery());
     }
 }

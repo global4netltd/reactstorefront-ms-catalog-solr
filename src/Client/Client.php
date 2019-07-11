@@ -3,19 +3,22 @@
 namespace G4NReact\MsCatalogSolr\Client;
 
 use G4NReact\MsCatalog\Client\ClientInterface;
+use G4NReact\MsCatalog\Config;
 use G4NReact\MsCatalog\PullerInterface;
 use G4NReact\MsCatalog\PusherInterface;
-use G4NReact\MsCatalog\QueryBuilderInterface;
+use G4NReact\MsCatalog\QueryInterface as MsCatalogQueryInterface;
 use G4NReact\MsCatalog\ResponseInterface;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
-use G4NReact\MsCatalogSolr\Config;
+use G4NReact\MsCatalogSolr\Document\Field;
+use G4NReact\MsCatalogSolr\Puller;
+use G4NReact\MsCatalogSolr\Pusher;
+use G4NReact\MsCatalogSolr\Query as MsCatalogSolrQuery;
 use G4NReact\MsCatalogSolr\Response;
 use Solarium\Client as SolariumClient;
+use Solarium\Core\Query\QueryInterface as SolariumQueryInterface;
 use Solarium\Core\Query\QueryInterface;
-use Solarium\Core\Query\Result\ResultInterface;
 use Solarium\Exception\UnexpectedValueException;
 use Solarium\QueryType\Select\Query\Query;
-use Solarium\QueryType\Update\Result;
 
 /**
  * Class Client
@@ -34,14 +37,20 @@ class Client implements ClientInterface
     protected $config;
 
     /**
+     * @var SolrConfig
+     */
+    protected $solrConfig;
+
+    /**
      * Client constructor.
      *
      * @param $config
      */
     public function __construct($config)
     {
-        $this->config = new SolrConfig($config);
-        $this->client = new SolariumClient($this->config->getConfigArray());
+        $this->config = $config;
+        $this->solrConfig = new SolrConfig($config);
+        $this->client = new SolariumClient($this->solrConfig->getConfigArray());
     }
 
     /**
@@ -108,7 +117,7 @@ class Client implements ClientInterface
      * @param $field
      * @param $value
      *
-     * @return Result
+     * @return \Solarium\Core\Query\Result\ResultInterface|\Solarium\QueryType\Update\Result
      */
     public function deleteByField($field, $value)
     {
@@ -168,7 +177,7 @@ class Client implements ClientInterface
     /**
      * @param string $type
      *
-     * @return QueryInterface
+     * @return SolariumQueryInterface
      */
     public function prepareQuery(string $type)
     {
@@ -183,18 +192,42 @@ class Client implements ClientInterface
         return $this->client->createSelect();
     }
 
-    public function getPusher(): PusherInterface
-    {
-        // TODO: Implement getPusher() method.
-    }
-
+    /**
+     * @return PullerInterface
+     */
     public function getPuller(): PullerInterface
     {
-        // TODO: Implement getPuller() method.
+        return new Puller($this->config, $this->client);
     }
 
-    public function getQueryBuilder(): QueryBuilderInterface
+    /**
+     * @return PusherInterface
+     */
+    public function getPusher(): PusherInterface
     {
-        // TODO: Implement getQueryBuilder() method.
+        return new Pusher($this->config, $this->client);
+    }
+
+    /**
+     * @return MsCatalogQueryInterface
+     */
+    public function getQuery(): MsCatalogQueryInterface
+    {
+        return new MsCatalogSolrQuery($this->config, $this);
+    }
+
+    /**
+     * @param string $name
+     * @param null $value
+     * @param string $type
+     * @param bool $indexable
+     * @param bool $multiValued
+     * @param array $args
+     *
+     * @return Field|mixed
+     */
+    public function getField(string $name, $value = null, string $type = '', bool $indexable = false, bool $multiValued = false, array $args = [])
+    {
+        return new Field($name, $value, $type, $indexable, $multiValued, $args);
     }
 }

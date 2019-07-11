@@ -9,7 +9,7 @@ use G4NReact\MsCatalog\Helper as MsCatalogHelper;
  * Class Config
  * @package G4NReact\MsCatalogSolr
  */
-class Config
+class Config implements ConfigInterface
 {
     const MODE_PUSHER = 'pusher';
     const MODE_PULLER = 'puller';
@@ -128,5 +128,111 @@ class Config
         return ($this->mode === self::MODE_PUSHER)
             ? (bool)$this->config->getPusherDeleteIndex()
             : false;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPullerNamespace(): ?string
+    {
+        // TODO: Implement getPullerNamespace() method.
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPusherNamespace(): ?string
+    {
+        // TODO: Implement getPusherNamespace() method.
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPullerEngine(): ?int
+    {
+        // TODO: Implement getPullerEngine() method.
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPusherEngine(): ?int
+    {
+        // TODO: Implement getPusherEngine() method.
+    }
+
+    /**
+     * @return array
+     */
+    public function getPullerEngineParams(): array
+    {
+        // TODO: Implement getPullerEngineParams() method.
+    }
+
+    /**
+     * @param array $params
+     * @return ConfigInterface
+     */
+    public function setPullerEngineParams(array $params): ConfigInterface
+    {
+        // TODO: Implement setPullerEngineParams() method.
+    }
+
+    /**
+     * @return array
+     */
+    public function getPusherEngineParams(): array
+    {
+        // TODO: Implement getPusherEngineParams() method.
+    }
+
+    /**
+     * @param array $params
+     * @return ConfigInterface
+     */
+    public function setPusherEngineParams(array $params): ConfigInterface
+    {
+        // TODO: Implement setPusherEngineParams() method.
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPullerPageSize(): ?int
+    {
+        // TODO: Implement getPullerPageSize() method.
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPusherPageSize(): ?int
+    {
+        // TODO: Implement getPusherPageSize() method.
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getPusherDeleteIndex(): ?bool
+    {
+        // TODO: Implement getPusherDeleteIndex() method.
+    }
+
+    /**
+     * @return array
+     */
+    public function getPullerEngineConnectionArray(): array
+    {
+        // TODO: Implement getPullerEngineConnectionArray() method.
+    }
+
+    /**
+     * @return array
+     */
+    public function getPusherEngineConnectionArray(): array
+    {
+        // TODO: Implement getPusherEngineConnectionArray() method.
     }
 }

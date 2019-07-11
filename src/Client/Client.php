@@ -3,8 +3,14 @@
 namespace G4NReact\MsCatalogSolr\Client;
 
 use G4NReact\MsCatalog\Client\ClientInterface;
+use G4NReact\MsCatalog\PullerInterface;
+use G4NReact\MsCatalog\PusherInterface;
+use G4NReact\MsCatalog\QueryBuilderInterface;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
 use G4NReact\MsCatalogSolr\Config;
+use G4NReact\MsCatalogSolr\Puller;
+use G4NReact\MsCatalogSolr\Pusher;
+use G4NReact\MsCatalogSolr\QueryBuilder;
 use Solarium\Client as SolariumClient;
 use Solarium\Core\Query\QueryInterface;
 use Solarium\Core\Query\Result\ResultInterface;
@@ -145,5 +151,29 @@ class Client implements ClientInterface
     public function getSelect()
     {
         return $this->client->createSelect();
+    }
+
+    /**
+     * @return PullerInterface
+     */
+    public function getPuller(): PullerInterface
+    {
+        return new Puller($this->config, $this->client);
+    }
+
+    /**
+     * @return PusherInterface
+     */
+    public function getPusher(): PusherInterface
+    {
+        return new Pusher($this->config, $this->client);
+    }
+
+    /**
+     * @return QueryBuilderInterface
+     */
+    public function getQueryBuilder(): QueryBuilderInterface
+    {
+        return new QueryBuilder($this->config, $this->client);
     }
 }

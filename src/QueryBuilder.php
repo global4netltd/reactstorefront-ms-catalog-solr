@@ -2,14 +2,34 @@
 
 namespace G4NReact\MsCatalogSolr;
 
+use G4NReact\MsCatalog\ConfigInterface;
+use G4NReact\MsCatalog\QueryBuilderInterface;
+use Solarium\Client as SolariumClient;
+
 /**
  * Class QueryBuilder
  * @package G4NReact\MsCatalogSolr
  */
-class QueryBuilder implements \G4NReact\MsCatalog\QueryBuilderInterface
+class QueryBuilder implements QueryBuilderInterface
 {
+    /**
+     * @var ConfigInterface
+     */
+    protected $config;
+
+    /**
+     * @var SolariumClient
+     */
+    protected $client;
+
+    /**
+     * @var Query
+     */
     protected $query;
 
+    /**
+     * @var array
+     */
     protected $options;
 
     protected $searchBoost = '';
@@ -19,10 +39,15 @@ class QueryBuilder implements \G4NReact\MsCatalog\QueryBuilderInterface
 
     /**
      * QueryBuilder constructor
+     *
+     * @param ConfigInterface $config
+     * @param SolariumClient $client
      */
-    public function __construct()
+    public function __construct(ConfigInterface $config, SolariumClient $client)
     {
-        $this->query = new Query();
+        $this->config = $config;
+        $this->client = $client;
+        $this->query = new Query($this->config);
     }
 
     /**

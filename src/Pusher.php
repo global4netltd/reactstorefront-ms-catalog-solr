@@ -11,6 +11,7 @@ use G4NReact\MsCatalog\ResponseInterface;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
 use Iterator;
 use Solarium\Client;
+use Solarium\Client as SolariumClient;
 
 /**
  * Class Pusher
@@ -32,11 +33,12 @@ class Pusher implements PusherInterface
      * Pusher constructor
      *
      * @param ConfigInterface $config
+     * @param SolariumClient $client
      */
-    public function __construct(ConfigInterface $config)
+    public function __construct(ConfigInterface $config, SolariumClient $client)
     {
-        $this->config = new SolrConfig($config);
-        $this->client = new Client($this->config->getConfigArray());
+        $this->config = $config;
+        $this->client = $client;
     }
 
     /**

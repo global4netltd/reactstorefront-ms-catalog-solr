@@ -83,13 +83,13 @@ class Pusher implements PusherInterface
                                 $field->setIndexable($this->checkIfIndexedFieldName($field->getName()));
                             }
                             $solrFieldName = $field->getName()
-                                . (Helper::$mapFieldType[$field->getType()] ?? Helper::SOLR_FIELD_TYPE_DEFAULT)
-                                . ($field->getIndexable() ? '' : Helper::SOLR_NOT_INDEXABLE_MARK)
-                                . ($field->getMultiValued() ? Helper::SOLR_MULTI_VALUE_MARK : '');
+                                . '_' . ((FieldHelper::$mapFieldType[$field->getType()] ?? FieldHelper::SOLR_FIELD_TYPE_STATIC))
+                                . ($field->getIndexable() ? '' : ('_' . FieldHelper::SOLR_NOT_INDEXABLE_MARK))
+                                . ($field->getMultiValued() ? ('_' . FieldHelper::SOLR_MULTI_VALUE_MARK) : '');
 
                             $solrFieldValue = $field->getValue();
-                            if (isset(Helper::$mapFieldType[$field->getType()]) && Helper::$mapFieldType[$field->getType()] === Helper::SOLR_FIELD_TYPE_DATETIME) {
-                                $solrFieldValue = date(Helper::SOLR_DATETIME_FORMAT, strtotime($field->getValue()));
+                            if (isset(FieldHelper::$mapFieldType[$field->getType()]) && FieldHelper::$mapFieldType[$field->getType()] === FieldHelper::SOLR_FIELD_TYPE_DATETIME) {
+                                $solrFieldValue = date(FieldHelper::SOLR_DATETIME_FORMAT, strtotime($field->getValue()));
                             }
 
                             $doc->{$solrFieldName} = $solrFieldValue;

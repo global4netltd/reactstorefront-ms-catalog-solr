@@ -241,7 +241,7 @@ class Puller implements PullerInterface
     {
         $nameParts = explode('_', $solrFieldName);
 
-        $type = Helper::FIELD_TYPE_DEFAULT;
+        $type = FieldHelper::FIELD_TYPE_DEFAULT;
         $indexable = true;
         $multiValue = false;
 
@@ -255,8 +255,8 @@ class Puller implements PullerInterface
             unset($nameParts[count($nameParts) - 1]);
         }
 
-        if (isset(Helper::$mapSolrFieldTypeToFieldType[$nameParts[count($nameParts) - 1]])) {
-            $type = Helper::$mapSolrFieldTypeToFieldType[$nameParts[count($nameParts) - 1]];
+        if (isset(FieldHelper::$mapSolrFieldTypeToFieldType[$nameParts[count($nameParts) - 1]])) {
+            $type = FieldHelper::$mapSolrFieldTypeToFieldType[$nameParts[count($nameParts) - 1]];
             unset($nameParts[count($nameParts) - 1]);
         }
 

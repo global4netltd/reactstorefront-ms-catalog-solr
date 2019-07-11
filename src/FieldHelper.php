@@ -1,0 +1,56 @@
+<?php
+
+namespace G4NReact\MsCatalogSolr;
+
+use G4NReact\MsCatalog\Document\Field;
+
+/**
+ * Class Helper
+ * @package G4NReact\MsCatalogSolr
+ */
+class FieldHelper
+{
+    const SOLR_FIELD_TYPE_STATIC = '';
+    const SOLR_FIELD_TYPE_STRING = 's';
+    const SOLR_FIELD_TYPE_TEXT = 't';
+    const SOLR_FIELD_TYPE_INT = 'i';
+    const SOLR_FIELD_TYPE_DATETIME = 'dt';
+    const SOLR_FIELD_TYPE_FLOAT = 'f';
+    const SOLR_FIELD_TYPE_BOOL = 'b';
+
+    const SOLR_NOT_INDEXABLE_MARK = 'ni';
+    const SOLR_MULTI_VALUE_MARK = 'mv';
+
+    const SOLR_DATETIME_FORMAT = 'Y-m-d\TH:i:s\Z';
+
+    const FIELD_TYPE_DEFAULT = 'string';
+
+    /**
+     * Map field types to SOLR types
+     * @var array
+     */
+    public static $mapFieldType = [
+        Field::FIELD_TYPE_STATIC   => self::SOLR_FIELD_TYPE_STATIC,
+        Field::FIELD_TYPE_STRING   => self::SOLR_FIELD_TYPE_STRING,
+        Field::FIELD_TYPE_INT      => self::SOLR_FIELD_TYPE_INT,
+        Field::FIELD_TYPE_TEXT     => self::SOLR_FIELD_TYPE_TEXT,
+        Field::FIELD_TYPE_VARCHAR  => self::SOLR_FIELD_TYPE_STRING,
+        Field::FIELD_TYPE_DATETIME => self::SOLR_FIELD_TYPE_DATETIME,
+        Field::FIELD_TYPE_DECIMAL  => self::SOLR_FIELD_TYPE_FLOAT,
+        Field::FIELD_TYPE_FLOAT    => self::SOLR_FIELD_TYPE_FLOAT,
+        Field::FIELD_TYPE_DOUBLE   => self::SOLR_FIELD_TYPE_FLOAT, // check if neccessary
+        Field::FIELD_TYPE_BOOL     => self::SOLR_FIELD_TYPE_BOOL,
+    ];
+
+    /**
+     * @var array
+     */
+    public static $mapSolrFieldTypeToFieldType = [
+        self::SOLR_FIELD_TYPE_TEXT  => Field::FIELD_TYPE_STRING,
+        self::SOLR_FIELD_TYPE_STRING  => Field::FIELD_TYPE_STRING,
+        self::SOLR_FIELD_TYPE_INT  => Field::FIELD_TYPE_INT,
+        self::SOLR_FIELD_TYPE_DATETIME => Field::FIELD_TYPE_DATETIME,
+        self::SOLR_FIELD_TYPE_FLOAT  => Field::FIELD_TYPE_FLOAT,
+        self::SOLR_FIELD_TYPE_BOOL  => Field::FIELD_TYPE_BOOL,
+    ];
+}

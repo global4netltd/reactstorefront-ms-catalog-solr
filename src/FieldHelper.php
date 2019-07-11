@@ -2,7 +2,7 @@
 
 namespace G4NReact\MsCatalogSolr;
 
-use G4NReact\MsCatalog\Document\Field;
+use G4NReact\MsCatalog\Document\AbstractField;
 
 /**
  * Class Helper
@@ -30,27 +30,28 @@ class FieldHelper
      * @var array
      */
     public static $mapFieldType = [
-        Field::FIELD_TYPE_STATIC   => self::SOLR_FIELD_TYPE_STATIC,
-        Field::FIELD_TYPE_STRING   => self::SOLR_FIELD_TYPE_STRING,
-        Field::FIELD_TYPE_INT      => self::SOLR_FIELD_TYPE_INT,
-        Field::FIELD_TYPE_TEXT     => self::SOLR_FIELD_TYPE_TEXT,
-        Field::FIELD_TYPE_VARCHAR  => self::SOLR_FIELD_TYPE_STRING,
-        Field::FIELD_TYPE_DATETIME => self::SOLR_FIELD_TYPE_DATETIME,
-        Field::FIELD_TYPE_DECIMAL  => self::SOLR_FIELD_TYPE_FLOAT,
-        Field::FIELD_TYPE_FLOAT    => self::SOLR_FIELD_TYPE_FLOAT,
-        Field::FIELD_TYPE_DOUBLE   => self::SOLR_FIELD_TYPE_FLOAT, // check if neccessary
-        Field::FIELD_TYPE_BOOL     => self::SOLR_FIELD_TYPE_BOOL,
+        AbstractField::FIELD_TYPE_STATIC   => self::SOLR_FIELD_TYPE_STATIC,
+        AbstractField::FIELD_TYPE_STRING   => self::SOLR_FIELD_TYPE_STRING,
+        AbstractField::FIELD_TYPE_INT      => self::SOLR_FIELD_TYPE_INT,
+        AbstractField::FIELD_TYPE_TEXT     => self::SOLR_FIELD_TYPE_TEXT,
+        AbstractField::FIELD_TYPE_VARCHAR  => self::SOLR_FIELD_TYPE_STRING,
+        AbstractField::FIELD_TYPE_DATETIME => self::SOLR_FIELD_TYPE_DATETIME,
+        AbstractField::FIELD_TYPE_DECIMAL  => self::SOLR_FIELD_TYPE_FLOAT,
+        AbstractField::FIELD_TYPE_FLOAT    => self::SOLR_FIELD_TYPE_FLOAT,
+        AbstractField::FIELD_TYPE_DOUBLE   => self::SOLR_FIELD_TYPE_FLOAT, // check if neccessary
+        AbstractField::FIELD_TYPE_BOOL     => self::SOLR_FIELD_TYPE_BOOL,
     ];
 
     /**
      * @var array
      */
     public static $mapSolrFieldTypeToFieldType = [
-        self::SOLR_FIELD_TYPE_TEXT  => Field::FIELD_TYPE_STRING,
-        self::SOLR_FIELD_TYPE_STRING  => Field::FIELD_TYPE_STRING,
-        self::SOLR_FIELD_TYPE_INT  => Field::FIELD_TYPE_INT,
-        self::SOLR_FIELD_TYPE_DATETIME => Field::FIELD_TYPE_DATETIME,
-        self::SOLR_FIELD_TYPE_FLOAT  => Field::FIELD_TYPE_FLOAT,
-        self::SOLR_FIELD_TYPE_BOOL  => Field::FIELD_TYPE_BOOL,
+        self::SOLR_FIELD_TYPE_TEXT  => AbstractField::FIELD_TYPE_STRING,
+        self::SOLR_FIELD_TYPE_STRING  => AbstractField::FIELD_TYPE_STRING,
+        self::SOLR_FIELD_TYPE_INT  => AbstractField::FIELD_TYPE_INT,
+        self::SOLR_FIELD_TYPE_DATETIME => AbstractField::FIELD_TYPE_DATETIME,
+        self::SOLR_FIELD_TYPE_FLOAT  => AbstractField::FIELD_TYPE_FLOAT,
+        self::SOLR_FIELD_TYPE_BOOL  => AbstractField::FIELD_TYPE_BOOL,
+        self::SOLR_FIELD_TYPE_STATIC    => AbstractField::FIELD_TYPE_STATIC
     ];
 }

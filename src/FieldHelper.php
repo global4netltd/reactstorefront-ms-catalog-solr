@@ -52,5 +52,6 @@ class FieldHelper
         self::SOLR_FIELD_TYPE_DATETIME => AbstractField::FIELD_TYPE_DATETIME,
         self::SOLR_FIELD_TYPE_FLOAT  => AbstractField::FIELD_TYPE_FLOAT,
         self::SOLR_FIELD_TYPE_BOOL  => AbstractField::FIELD_TYPE_BOOL,
+        self::SOLR_FIELD_TYPE_STATIC    => AbstractField::FIELD_TYPE_STATIC
     ];
 }

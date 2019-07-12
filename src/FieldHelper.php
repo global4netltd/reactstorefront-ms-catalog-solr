@@ -3,6 +3,7 @@
 namespace G4NReact\MsCatalogSolr;
 
 use G4NReact\MsCatalog\Document\AbstractField;
+use G4NReact\MsCatalog\Document\Field;
 
 /**
  * Class Helper
@@ -56,20 +57,17 @@ class FieldHelper
     ];
 
     /**
-     * @param $name
-     * @param $type
-     * @param $isIndexable
-     * @param $isMultiValued
+     * @param Field $field
      * @return string
      */
-    public static function getFieldName($name, $type, $isIndexable, $isMultiValued)
+    public static function getFieldName($field)
     {
 
         $fieldMappedType = self::$mapFieldType[$field->getType()] ?? self::SOLR_FIELD_TYPE_STATIC;
 
         return $field->getName()
             . ($fieldMappedType ? ('_' . $fieldMappedType) : $fieldMappedType)
-            . ($isIndexable ? '' : ('_' . self::SOLR_NOT_INDEXABLE_MARK))
-            . ($isMultiValued ? ('_' . self::SOLR_MULTI_VALUE_MARK) : '');
+            . ($field->getIndexable() ? '' : ('_' . self::SOLR_NOT_INDEXABLE_MARK))
+            . ($field->getMultiValued() ? ('_' . self::SOLR_MULTI_VALUE_MARK) : '');
     }
 }

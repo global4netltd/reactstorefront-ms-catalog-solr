@@ -4,12 +4,13 @@ namespace G4NReact\MsCatalogSolr\Client;
 
 use G4NReact\MsCatalog\Client\ClientInterface;
 use G4NReact\MsCatalog\Config;
+use G4NReact\MsCatalog\Document;
+use G4NReact\MsCatalog\Document\Field;
 use G4NReact\MsCatalog\PullerInterface;
 use G4NReact\MsCatalog\PusherInterface;
 use G4NReact\MsCatalog\QueryInterface as MsCatalogQueryInterface;
 use G4NReact\MsCatalog\ResponseInterface;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
-use G4NReact\MsCatalogSolr\Document\Field;
 use G4NReact\MsCatalogSolr\Puller;
 use G4NReact\MsCatalogSolr\Pusher;
 use G4NReact\MsCatalogSolr\Query as MsCatalogSolrQuery;
@@ -58,7 +59,7 @@ class Client implements ClientInterface
      *
      * @return \G4NReact\MsCatalog\ResponseInterface
      */
-    public function add($fields) : ResponseInterface
+    public function add($fields): ResponseInterface
     {
         $update = $this->client->createUpdate();
         $document = $update->createDocument($fields);
@@ -66,7 +67,7 @@ class Client implements ClientInterface
             ->addDocument($document)
             ->addCommit();
 
-        $result =  $this->client->update($update);
+        $result = $this->client->update($update);
         $response = new Response();
 
         return $response
@@ -79,7 +80,7 @@ class Client implements ClientInterface
      *
      * @return \G4NReact\MsCatalog\ResponseInterface
      */
-    public function deleteById($id) : ResponseInterface
+    public function deleteById($id): ResponseInterface
     {
         $update = $this->client->createUpdate();
         $update
@@ -98,7 +99,7 @@ class Client implements ClientInterface
      *
      * @return \G4NReact\MsCatalog\ResponseInterface
      */
-    public function deleteByIds(array $ids) : ResponseInterface
+    public function deleteByIds(array $ids): ResponseInterface
     {
         $update = $this->client->createUpdate();
 
@@ -135,7 +136,7 @@ class Client implements ClientInterface
      *
      * @return \G4NReact\MsCatalog\ResponseInterface
      */
-    public function get($options) : ResponseInterface
+    public function get($options): ResponseInterface
     {
         $query = $this->client->createSelect($options);
 
@@ -154,7 +155,7 @@ class Client implements ClientInterface
      *
      * @return \G4NReact\MsCatalog\ResponseInterface
      */
-    public function query($query) : ResponseInterface
+    public function query($query): ResponseInterface
     {
         if (!($query instanceof QueryInterface)) {
             throw new UnexpectedValueException(
@@ -164,14 +165,30 @@ class Client implements ClientInterface
         $result = $this->client->execute($query);
         $response = new Response();
 
-        return $response
+        $response
             ->setDocumentsCollection($result->getData()['response']['docs'])
-            ->setNumFound($result->getData()['response']['numFound'])
-            ->setFacets($result->getData()['facet_counts']['facet_queries'])
-            ->setStats($result->getData()['stats']['stats_fields'])
+            ->setNumFound($result->getData()['response']['numFound'] ?? 0)
+            ->setFacets($result->getData()['facet_counts']['facet_queries'] ?? null)
+            ->setStats($result->getData()['stats']['stats_fields'] ?? null)
             ->setCurrentPage($result->getQuery()->getOption('start'))
             ->setStatusMessage($result->getResponse()->getStatusMessage())
             ->setStatusCode($result->getResponse()->getStatusCode());
+
+        /** TODO move it to another function */
+        $newDocumentColl = [];
+
+        foreach ($response->getDocumentsCollection() as $docKey =>  $document) {
+            $newDocument = new Document();
+            foreach ($document as $key => $field) {
+                $newDocument->setData($key, $field);
+            }
+            $document = $newDocument;
+            array_push($newDocumentColl, $document);
+        }
+
+        $response->setDocumentsCollection($newDocumentColl);
+
+        return $response;
     }
 
     /**
@@ -213,7 +230,7 @@ class Client implements ClientInterface
      */
     public function getQuery(): MsCatalogQueryInterface
     {
-        return new MsCatalogSolrQuery($this->config, $this);
+        return new MsCatalogSolrQuery($this->config);
     }
 
     /**

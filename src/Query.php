@@ -7,7 +7,7 @@ use G4NReact\MsCatalog\AbstractQuery;
 use G4NReact\MsCatalog\ResponseInterface;
 use G4NReact\MsCatalogSolr\Client\Client as MsCatalogSolrClient;
 use Solarium\QueryType\Select\Query\Query as SolariumSelectQuery;
-use G4NReact\MsCatalog\Document\AbstractField;
+use G4NReact\MsCatalog\Document\Field;
 
 /**
  * Class Query
@@ -19,15 +19,19 @@ class Query extends AbstractQuery
      * @var SolariumSelectQuery
      */
     protected $query;
+    /**
+     * @var \G4NReact\MsCatalogSolr\FieldHelper
+     */
+    protected $fieldHelper;
 
     /**
-     * @return ResponseInterface
+     * @return mixed|\Solarium\QueryType\Select\Query\Query
      */
-    public function buildQuery(): ResponseInterface
+    public function buildQuery()
     {
         /** @var \G4NReact\MsCatalogSolr\Client\Client $client */
         $client = $this->getClient();
-
+        $this->fieldHelper = new FieldHelper();
         $query = $client
             ->getSelect()
             ->setQuery($this->getQueryText() ?? '*:*')
@@ -40,8 +44,7 @@ class Query extends AbstractQuery
         $this->addFacetsToQuery();
         $this->addStatsToQuery();
 
-        $result = $client->query($this->query);
-        return $client->query($this->query);
+        return $this->query;
     }
 
     /**
@@ -59,15 +62,15 @@ class Query extends AbstractQuery
     }
 
     /**
-     * @param AbstractField $field
+     * @param Field $field
      *
      * @param bool $isNegative
      *
      * @return string
      */
-    protected function prepareFilterQuery(AbstractField $field, bool $isNegative)
+    protected function prepareFilterQuery(Field $field, bool $isNegative)
     {
-        return (string)$isNegative ? '-' : '' . $field->getName() . ':' . $field->getValue();
+        return (string)$isNegative ? '-' : '' . $this->fieldHelper::getFieldName($field) . ':' . $field->getValue();
     }
 
     /**
@@ -81,13 +84,13 @@ class Query extends AbstractQuery
     }
 
     /**
-     * @param AbstractField $field
+     * @param Field $field
      *
      * @return string
      */
     protected function prepareQueryFacet($field)
     {
-        return (string)$field->getName() . ': ' . $field->getValue();
+        return (string)$this->fieldHelper::getFieldName($field) . ': ' . $field->getValue();
     }
 
     /**
@@ -97,10 +100,10 @@ class Query extends AbstractQuery
     {
         /**
          * @var  $key
-         * @var AbstractField $stat
+         * @var Field $stat
          */
         foreach ($this->stats as $key => $stat) {
-            $this->query->getStats()->addFacet($key)->createField($stat->getName());
+            $this->query->getStats()->addFacet($key)->createField($this->fieldHelper::getFieldName($stat));
         }
     }
 
@@ -110,9 +113,9 @@ class Query extends AbstractQuery
     protected function prepareFields(): array
     {
         $fields = [];
-        /** @var AbstractField $field */
+        /** @var Field $field */
         foreach ($this->fields as $field) {
-            $fields [] = $field->getValue();
+            $fields [] = $field->getName();
         }
 
         return $fields;

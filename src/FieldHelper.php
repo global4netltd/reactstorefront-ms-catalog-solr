@@ -46,12 +46,26 @@ class FieldHelper
      * @var array
      */
     public static $mapSolrFieldTypeToFieldType = [
-        self::SOLR_FIELD_TYPE_TEXT  => AbstractField::FIELD_TYPE_STRING,
-        self::SOLR_FIELD_TYPE_STRING  => AbstractField::FIELD_TYPE_STRING,
-        self::SOLR_FIELD_TYPE_INT  => AbstractField::FIELD_TYPE_INT,
+        self::SOLR_FIELD_TYPE_TEXT     => AbstractField::FIELD_TYPE_STRING,
+        self::SOLR_FIELD_TYPE_STRING   => AbstractField::FIELD_TYPE_STRING,
+        self::SOLR_FIELD_TYPE_INT      => AbstractField::FIELD_TYPE_INT,
         self::SOLR_FIELD_TYPE_DATETIME => AbstractField::FIELD_TYPE_DATETIME,
-        self::SOLR_FIELD_TYPE_FLOAT  => AbstractField::FIELD_TYPE_FLOAT,
-        self::SOLR_FIELD_TYPE_BOOL  => AbstractField::FIELD_TYPE_BOOL,
-        self::SOLR_FIELD_TYPE_STATIC    => AbstractField::FIELD_TYPE_STATIC
+        self::SOLR_FIELD_TYPE_FLOAT    => AbstractField::FIELD_TYPE_FLOAT,
+        self::SOLR_FIELD_TYPE_BOOL     => AbstractField::FIELD_TYPE_BOOL,
+        self::SOLR_FIELD_TYPE_STATIC   => AbstractField::FIELD_TYPE_STATIC
     ];
+
+    /**
+     * @param $fieldName
+     */
+    public static function getFieldName($name, $type, $isIndexable, $isMultiValued)
+    {
+
+        $fieldMappedType = self::$mapFieldType[$field->getType()] ?? self::SOLR_FIELD_TYPE_STATIC;
+
+        $solrFieldName = $field->getName()
+            . ($fieldMappedType ? ('_' . $fieldMappedType) : $fieldMappedType)
+            . ($isIndexable ? '' : ('_' . self::SOLR_NOT_INDEXABLE_MARK))
+            . ($isMultiValued ? ('_' . self::SOLR_MULTI_VALUE_MARK) : '');
+    }
 }

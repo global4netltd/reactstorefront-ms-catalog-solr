@@ -82,10 +82,10 @@ class Pusher implements PusherInterface
                             if (!$field->getIndexable()) {
                                 $field->setIndexable($this->checkIfIndexedFieldName($field->getName()));
                             }
-                            $solrFieldName = $field->getName()
-                                . '_' . ((FieldHelper::$mapFieldType[$field->getType()] ?? FieldHelper::SOLR_FIELD_TYPE_STATIC))
-                                . ($field->getIndexable() ? '' : ('_' . FieldHelper::SOLR_NOT_INDEXABLE_MARK))
-                                . ($field->getMultiValued() ? ('_' . FieldHelper::SOLR_MULTI_VALUE_MARK) : '');
+
+                            $solrFieldName = FieldHelper::getFieldName(
+                                $field->getName(), $field->getType(), $field->getIndexable(), $field->getMultiValued()
+                            );
 
                             $solrFieldValue = $field->getValue();
                             if (isset(FieldHelper::$mapFieldType[$field->getType()]) && FieldHelper::$mapFieldType[$field->getType()] === FieldHelper::SOLR_FIELD_TYPE_DATETIME) {
@@ -107,7 +107,7 @@ class Pusher implements PusherInterface
                         echo (round(microtime(true) - $start, 4)) . 's | ' . $counter . PHP_EOL;
                     }
                 }
-                if($i > 0) {
+                if ($i > 0) {
                     $update->addCommit();
                 }
                 $result = $this->client->update($update);

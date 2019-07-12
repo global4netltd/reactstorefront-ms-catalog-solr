@@ -180,7 +180,7 @@ class Client implements ClientInterface
         foreach ($response->getDocumentsCollection() as $docKey =>  $document) {
             $newDocument = new Document();
             foreach ($document as $key => $field) {
-                $newDocument->setData($key, $field);
+                $newDocument->setField($key, $field);
             }
             $document = $newDocument;
             array_push($newDocumentColl, $document);

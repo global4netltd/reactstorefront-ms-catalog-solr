@@ -11,6 +11,7 @@ use G4NReact\MsCatalog\PusherInterface;
 use G4NReact\MsCatalog\QueryInterface as MsCatalogQueryInterface;
 use G4NReact\MsCatalog\ResponseInterface;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
+use G4NReact\MsCatalogSolr\FieldHelper;
 use G4NReact\MsCatalogSolr\Puller;
 use G4NReact\MsCatalogSolr\Pusher;
 use G4NReact\MsCatalogSolr\Query as MsCatalogSolrQuery;
@@ -162,8 +163,14 @@ class Client implements ClientInterface
                 'query must implement Query Interface'
             );
         }
-        $result = $this->client->execute($query);
+        try {
+            $result = $this->client->execute($query);
+        } catch (\Exception $e) {
+            /** @todo logger for error */
+            var_dump($e->getMessage());die;
+        }
         $response = new Response();
+
 
         $response
             ->setDocumentsCollection($result->getData()['response']['docs'])
@@ -177,10 +184,14 @@ class Client implements ClientInterface
         /** TODO move it to another function */
         $newDocumentColl = [];
 
+        /**
+         * @todo too much response data vs requested (fields like created_at, display mode etc)
+         */
         foreach ($response->getDocumentsCollection() as $docKey =>  $document) {
             $newDocument = new Document();
-            foreach ($document as $key => $field) {
-                $newDocument->setField($key, $field);
+            foreach ($document as $fieldName => $fieldValue) {
+                $field = FieldHelper::createFieldByResponseField($fieldName, $fieldValue);
+                $newDocument->setField($field);
             }
             $document = $newDocument;
             array_push($newDocumentColl, $document);

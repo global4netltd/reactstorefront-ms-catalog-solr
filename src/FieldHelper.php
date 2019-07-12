@@ -81,4 +81,37 @@ class FieldHelper
             . ($indexable ? '' : ('_' . self::SOLR_NOT_INDEXABLE_MARK))
             . ($field->getMultiValued() ? ('_' . self::SOLR_MULTI_VALUE_MARK) : '');
     }
+
+    /**
+     * @param string $solrFieldName
+     * @param mixed $value
+     * @return Field
+     */
+    public static function createFieldByResponseField(string $solrFieldName, $value): Field
+    {
+        $nameParts = explode('_', $solrFieldName);
+
+        $type = FieldHelper::FIELD_TYPE_DEFAULT;
+        $indexable = true;
+        $multiValue = false;
+
+        if ($nameParts[count($nameParts) - 1] === 'mv') {
+            $multiValue = true;
+            unset($nameParts[count($nameParts) - 1]);
+        }
+
+        if (($nameParts[count($nameParts) - 1] === 'ni')) {
+            $indexable = false;
+            unset($nameParts[count($nameParts) - 1]);
+        }
+
+        if (isset(FieldHelper::$mapSolrFieldTypeToFieldType[$nameParts[count($nameParts) - 1]])) {
+            $type = FieldHelper::$mapSolrFieldTypeToFieldType[$nameParts[count($nameParts) - 1]];
+            unset($nameParts[count($nameParts) - 1]);
+        }
+
+        $name = implode('_', $nameParts);
+
+        return new Field($name, $value, $type, $indexable, $multiValue);
+    }
 }

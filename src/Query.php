@@ -20,16 +20,17 @@ class Query extends AbstractQuery
      */
     protected $query;
     /**
-     * @var \G4NReact\MsCatalogSolr\FieldHelper
+     * @var FieldHelper
      */
     protected $fieldHelper;
 
     /**
-     * @return mixed|\Solarium\QueryType\Select\Query\Query
+     * @return mixed|SolariumSelectQuery
+     * @throws Exception
      */
     public function buildQuery()
     {
-        /** @var \G4NReact\MsCatalogSolr\Client\Client $client */
+        /** @var MsCatalogSolrClient $client */
         $client = $this->getClient();
         $this->fieldHelper = new FieldHelper();
         $query = $client
@@ -57,20 +58,38 @@ class Query extends AbstractQuery
                 continue;
             }
 
-            $this->query->createFilterQuery($key)->setQuery($this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]));
+            $this->query
+                ->createFilterQuery($key)
+                ->setQuery($this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]));
         }
     }
 
     /**
+     * @ToDo: Handle range fields
      * @param Field $field
-     *
      * @param bool $isNegative
-     *
      * @return string
      */
     protected function prepareFilterQuery(Field $field, bool $isNegative)
     {
-        return (string)$isNegative ? '-' : '' . $this->fieldHelper::getFieldName($field) . ':' . $field->getValue();
+        $queryFilter = '';
+        $value = $field->getValue();
+
+        if (stripos($value, ',') !== false) {
+            $multi = explode(',', $value);
+            $queryFilter = '(' . implode(' OR ', $multi) . ')';
+        } elseif (stripos($value, '\-') !== false) {
+            $queryFilter = $value;
+        } elseif (stripos($value, '-') !== false) {
+            $ranges = explode('-', $value);
+            if (isset($ranges[0]) && isset($ranges[1])) {
+                $queryFilter = '[' . $ranges[0] . ' TO ' . $ranges[1] . ']';
+            }
+        } else {
+            $queryFilter = $value;
+        }
+
+        return (string)($isNegative ? '-' : '') . $this->fieldHelper::getFieldName($field) . ':' . $queryFilter;
     }
 
     /**

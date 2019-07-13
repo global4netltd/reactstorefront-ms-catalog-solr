@@ -2,6 +2,7 @@
 
 namespace G4NReact\MsCatalogSolr\Client;
 
+use Exception;
 use G4NReact\MsCatalog\Client\ClientInterface;
 use G4NReact\MsCatalog\Config;
 use G4NReact\MsCatalog\Document;
@@ -90,6 +91,7 @@ class Client implements ClientInterface
 
         $result = $this->client->update($update);
         $response = new Response();
+
         return $response
             ->setStatusCode($result->getResponse()->getStatusCode())
             ->setStatusMessage($result->getResponse()->getStatusMessage());
@@ -110,6 +112,7 @@ class Client implements ClientInterface
 
         $result = $this->client->update($update);
         $response = new Response();
+
         return $response
             ->setStatusCode($result->getResponse()->getStatusCode())
             ->setStatusMessage($result->getResponse()->getStatusMessage());
@@ -119,23 +122,27 @@ class Client implements ClientInterface
      * @param $field
      * @param $value
      *
-     * @return \Solarium\Core\Query\Result\ResultInterface|\Solarium\QueryType\Update\Result
+     * @return ResponseInterface
      */
-    public function deleteByField($field, $value)
+    public function deleteByField($field, $value): ResponseInterface
     {
         $update = $this->client->createUpdate();
         $update
             ->addDeleteQuery($field . ':' . $value)
             ->addCommit();
 
-        return $this->client->update($update);
-    }
+        $result = $this->client->update($update);
+        $response = new Response();
 
+        return $response
+            ->setStatusCode($result->getResponse()->getStatusCode())
+            ->setStatusMessage($result->getResponse()->getStatusMessage());
+    }
 
     /**
      * @param array $options
      *
-     * @return \G4NReact\MsCatalog\ResponseInterface
+     * @return ResponseInterface
      */
     public function get($options): ResponseInterface
     {
@@ -144,6 +151,7 @@ class Client implements ClientInterface
         $result = $this->client->execute($query);
 
         $response = new Response();
+
         return $response
             ->setDocumentsCollection($result->getData())
             ->setNumFound(count($result->getData()))
@@ -154,7 +162,7 @@ class Client implements ClientInterface
     /**
      * @param $query
      *
-     * @return \G4NReact\MsCatalog\ResponseInterface
+     * @return ResponseInterface
      */
     public function query($query): ResponseInterface
     {
@@ -165,13 +173,11 @@ class Client implements ClientInterface
         }
         try {
             $result = $this->client->execute($query);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             /** @todo logger for error */
             var_dump($e->getMessage());die;
         }
         $response = new Response();
-
-
         $response
             ->setDocumentsCollection($result->getData()['response']['docs'])
             ->setNumFound($result->getData()['response']['numFound'] ?? 0)
@@ -238,6 +244,7 @@ class Client implements ClientInterface
 
     /**
      * @return MsCatalogQueryInterface
+     * @throws Exception
      */
     public function getQuery(): MsCatalogQueryInterface
     {

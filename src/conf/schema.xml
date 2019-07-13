@@ -68,8 +68,8 @@
     <fieldType name="random" class="solr.RandomSortField" indexed="true"/>
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" docValues="true"/>
     <fieldType name="strings" class="solr.StrField" sortMissingLast="true" docValues="true" multiValued="true"/>
-    <fieldType name="text" class="solr.TextField" sortMissingLast="true" docValues="true"/>
-    <fieldType name="texts" class="solr.TextField" sortMissingLast="true" docValues="true" multiValued="true"/>
+    <fieldType name="text" class="solr.TextField" sortMissingLast="true"/>
+    <fieldType name="texts" class="solr.TextField" sortMissingLast="true" multiValued="true"/>
 
     <fieldType name="text_cjk" class="solr.TextField" positionIncrementGap="100">
         <analyzer>

@@ -70,8 +70,8 @@ class Pusher implements PusherInterface
                     if ($i < $pageSize) {
                         $doc = $update->createDocument();
 
-                        $doc->id = (string)$document->getUniqueId();
-                        $doc->object_id = (int)$document->getObjectId();
+                        $doc->solr_id = (string)$document->getUniqueId();
+                        $doc->id = (int)$document->getObjectId();
                         $doc->object_type = (string)$document->getObjectType();
 
                         /** @var Document\Field $field */

@@ -194,28 +194,6 @@
         </analyzer>
     </fieldType>
 
-    <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
-        <analyzer type="index">
-            <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
-            <tokenizer class="solr.StandardTokenizerFactory"/>
-            <filter class="solr.LowerCaseFilterFactory"/>
-            <filter class="solr.ShingleFilterFactory" minShingleSize="2" maxShingleSize="3"
-                    outputUnigrams="true" outputUnigramsIfNoShingles="false" tokenSeparator=""/>
-            <filter class="solr.EdgeNGramFilterFactory" maxGramSize="15" minGramSize="2"/>
-            <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1"
-                    catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"
-                    splitOnNumerics="0"/>
-        </analyzer>
-        <analyzer type="query">
-            <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
-            <tokenizer class="solr.StandardTokenizerFactory"/>
-            <filter class="solr.LowerCaseFilterFactory"/>
-            <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1"
-                    catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"
-                    splitOnNumerics="0"/>
-        </analyzer>
-    </fieldType>
-
     <fieldType name="text_ngram" class="solr.TextField" positionIncrementGap="100">
         <analyzer type="index">
             <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>

@@ -18,8 +18,8 @@ use G4NReact\MsCatalogSolr\Pusher;
 use G4NReact\MsCatalogSolr\Query as MsCatalogSolrQuery;
 use G4NReact\MsCatalogSolr\Response;
 use Solarium\Client as SolariumClient;
-use Solarium\Core\Query\QueryInterface as SolariumQueryInterface;
 use Solarium\Core\Query\QueryInterface;
+use Solarium\Core\Query\QueryInterface as SolariumQueryInterface;
 use Solarium\Exception\UnexpectedValueException;
 use Solarium\QueryType\Select\Query\Query;
 
@@ -175,7 +175,8 @@ class Client implements ClientInterface
             $result = $this->client->execute($query);
         } catch (Exception $e) {
             /** @todo logger for error */
-            var_dump($e->getMessage());die;
+            var_dump($e->getMessage());
+            die;
         }
         $response = new Response();
         $response

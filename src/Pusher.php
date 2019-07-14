@@ -46,7 +46,7 @@ class Pusher implements PusherInterface
      *
      * @return ResponseInterface
      */
-    public function push($documents): ResponseInterface
+    public function push(PullerInterface $documents): ResponseInterface
     {
         $pageSize = $this->config->getPusherPageSize();
         $response = new Response();
@@ -102,7 +102,7 @@ class Pusher implements PusherInterface
                         $update = $this->client->createUpdate();
                     }
                     if (++$counter % 100 === 0) {
-                        echo (round(microtime(true) - $start, 4)) . 's | ' . $counter . PHP_EOL;
+                        echo(round(microtime(true) - $start, 4)) . 's | ' . $counter . PHP_EOL;
                     }
                 }
                 if ($i > 0) {

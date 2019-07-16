@@ -72,11 +72,8 @@ class Client implements ClientInterface
         $result = $this->client->update($update);
         $response = new Response();
 
-        // @ToDo: check in config if we should debug, if no add empty array
-        $debugInfo = $this->getDebugInfo($result);
-
         return $response
-            ->setDebugInfo($debugInfo)
+            ->setDebugInfo($this->getDebugInfo($result))
             ->setStatusMessage($result->getResponse()->getStatusMessage())
             ->setStatusCode($result->getResponse()->getStatusCode());
     }
@@ -96,11 +93,8 @@ class Client implements ClientInterface
         $result = $this->client->update($update);
         $response = new Response();
 
-        // @ToDo: check in config if we should debug, if no add empty array
-        $debugInfo = $this->getDebugInfo($result);
-
         return $response
-            ->setDebugInfo($debugInfo)
+            ->setDebugInfo($this->getDebugInfo($result))
             ->setStatusCode($result->getResponse()->getStatusCode())
             ->setStatusMessage($result->getResponse()->getStatusMessage());
     }
@@ -121,11 +115,8 @@ class Client implements ClientInterface
         $result = $this->client->update($update);
         $response = new Response();
 
-        // @ToDo: check in config if we should debug, if no add empty array
-        $debugInfo = $this->getDebugInfo($result);
-
         return $response
-            ->setDebugInfo($debugInfo)
+            ->setDebugInfo($this->getDebugInfo($result))
             ->setStatusCode($result->getResponse()->getStatusCode())
             ->setStatusMessage($result->getResponse()->getStatusMessage());
     }
@@ -146,11 +137,8 @@ class Client implements ClientInterface
         $result = $this->client->update($update);
         $response = new Response();
 
-        // @ToDo: check in config if we should debug, if no add empty array
-        $debugInfo = $this->getDebugInfo($result);
-
         return $response
-            ->setDebugInfo($debugInfo)
+            ->setDebugInfo($this->getDebugInfo($result))
             ->setStatusCode($result->getResponse()->getStatusCode())
             ->setStatusMessage($result->getResponse()->getStatusMessage());
     }
@@ -168,11 +156,8 @@ class Client implements ClientInterface
 
         $response = new Response();
 
-        // @ToDo: check in config if we should debug, if no add empty array
-        $debugInfo = $this->getDebugInfo($result);
-
         return $response
-            ->setDebugInfo($debugInfo)
+            ->setDebugInfo($this->getDebugInfo($result))
             ->setDocumentsCollection($result->getData())
             ->setNumFound(count($result->getData()))
             ->setStatusCode($result->getResponse()->getStatusCode())
@@ -201,11 +186,8 @@ class Client implements ClientInterface
 
         $response = new Response();
 
-        // @ToDo: check in config if we should debug, if no add empty array
-        $debugInfo = $this->getDebugInfo($result);
-
         $response
-            ->setDebugInfo($debugInfo)
+            ->setDebugInfo($this->getDebugInfo($result))
             ->setQuery($query)
             ->setDocumentsCollection($result->getData()['response']['docs'])
             ->setNumFound($result->getData()['response']['numFound'] ?? 0)
@@ -300,6 +282,10 @@ class Client implements ClientInterface
      */
     public function getDebugInfo(SolariumResultInterface $result): array
     {
+        if (!$this->config->isDebugEnabled()) {
+            return [];
+        }
+
         $debugQuery = $result->getQuery();
         $builder = $debugQuery->getRequestBuilder();
         $debugRequest = $builder->build($debugQuery);

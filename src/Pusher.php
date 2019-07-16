@@ -55,7 +55,7 @@ class Pusher implements PusherInterface
                 $update = $this->client->createUpdate();
 
                 // @ToDo: delete index before reindexing if setting == true -> set delete query eg '*:*' or 'product_type:"category"'
-//                $this->clearIndex();
+                $this->clearIndex();
 
                 $i = 0;
                 $counter = 0;

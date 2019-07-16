@@ -161,7 +161,7 @@ class Query extends AbstractQuery
     {
         $sorts = [];
         foreach ($this->sort as $sort) {
-            $sorts[$sort['field']] = $sort['direction'];
+            $sorts[FieldHelper::getFieldName($sort['field'])] = $sort['direction'];
         }
 
         return $sorts;

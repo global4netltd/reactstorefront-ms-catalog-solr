@@ -172,7 +172,7 @@ class Client implements ClientInterface
             );
         }
         try {
-            $result = $this->client->execute($query);
+            $result = $this->client->select($query);
         } catch (Exception $e) {
             /** @todo logger for error */
             var_dump($e->getMessage());
@@ -185,8 +185,8 @@ class Client implements ClientInterface
             ->setQuery($query)
             ->setDocumentsCollection($result->getData()['response']['docs'])
             ->setNumFound($result->getData()['response']['numFound'] ?? 0)
-            ->setFacets($result->getData()['facet_counts']['facet_queries'] ?? null)
-            ->setStats($result->getData()['stats']['stats_fields'] ?? null)
+            ->setFacets($result->getFacetSet()->getFacets())
+            ->setStats($result->getStats())
             ->setCurrentPage($result->getQuery()->getOption('start'))
             ->setStatusMessage($result->getResponse()->getStatusMessage())
             ->setStatusCode($result->getResponse()->getStatusCode());

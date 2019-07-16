@@ -103,8 +103,8 @@ class Query extends AbstractQuery
      */
     protected function addFacetsToQuery()
     {
-        foreach ($this->facets as $key => $facet) {
-            $this->query->getFacetSet()->createFacetQuery($key)->setQuery($this->prepareQueryFacet($facet));
+        foreach ($this->facets as $key => $field) {
+            $this->query->getFacetSet()->createFacetField($key)->setField(FieldHelper::getFieldName($field));
         }
     }
 

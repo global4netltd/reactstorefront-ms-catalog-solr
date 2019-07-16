@@ -2,7 +2,9 @@
 
 namespace G4NReact\MsCatalogSolr;
 
+use Exception;
 use G4NReact\MsCatalog\Document;
+use G4NReact\MsCatalog\QueryInterface as MsCatalogQueryInterface;
 use G4NReact\MsCatalog\ResponseInterface;
 
 /**
@@ -47,6 +49,11 @@ class Response implements ResponseInterface
      * @var string
      */
     private $statusMessage = 'empty';
+
+    /**
+     * @var String
+     */
+    protected $query;
 
     /**
      * @return int
@@ -95,7 +102,7 @@ class Response implements ResponseInterface
         if (isset($arrayKeys[0])) {
             return $this->documentsCollection[$arrayKeys[0]];
         } else {
-            return new Document;
+            return new Document();
         }
     }
 
@@ -192,5 +199,25 @@ class Response implements ResponseInterface
     public function getStatusMessage(): string
     {
         return (string)$this->statusMessage;
+    }
+
+    /**
+     * @param $query
+     * @return Response
+     */
+    public function setQuery($query)
+    {
+        $this->query = $query;
+
+        return $this;
+    }
+
+    /**
+     * @return MsCatalogQueryInterface|String
+     * @throws Exception
+     */
+    public function getQuery()
+    {
+        return $this->query;
     }
 }

@@ -67,6 +67,9 @@ class FieldHelper
         'sku'
     ];
 
+    /**
+     * @var array
+     */
     public static $mapProductsGraphQlTemporary = [
         'category_id' => 'category_ids_i_mv',
     ];

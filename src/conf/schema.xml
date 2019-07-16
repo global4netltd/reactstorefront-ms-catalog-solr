@@ -338,6 +338,6 @@
     <dynamicField name="*_p" type="location" indexed="true" stored="true"/>
     <dynamicField name="*_p_ni" type="location" indexed="false" stored="true"/>
 
-    <dynamicField name="*_nonindex" type="string" indexed="false" stored="true"/>
-    <dynamicField name="*_nonindex_mv" type="strings" indexed="false" stored="true"/>
+    <dynamicField name="*_ni" type="string" indexed="false" stored="true"/>
+    <dynamicField name="*_ni_mv" type="strings" indexed="false" stored="true"/>
 </schema>

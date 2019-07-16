@@ -36,7 +36,7 @@ class Response implements ResponseInterface
     private $stats = [];
 
     /**
-     * @var array
+     * @var int
      */
     private $currentPage;
 
@@ -58,16 +58,16 @@ class Response implements ResponseInterface
     /**
      * @return int
      */
-    public function getNumFound()
+    public function getNumFound(): int
     {
         return $this->numFound;
     }
 
     /**
      * @param int $numFound
-     * @return Response
+     * @return ResponseInterface
      */
-    public function setNumFound($numFound)
+    public function setNumFound(int $numFound): ResponseInterface
     {
         $this->numFound = $numFound;
 
@@ -77,16 +77,16 @@ class Response implements ResponseInterface
     /**
      * @return array
      */
-    public function getDocumentsCollection()
+    public function getDocumentsCollection(): array
     {
         return $this->documentsCollection;
     }
 
     /**
      * @param array $documentsCollection
-     * @return Response
+     * @return ResponseInterface
      */
-    public function setDocumentsCollection($documentsCollection)
+    public function setDocumentsCollection(array $documentsCollection): ResponseInterface
     {
         $this->documentsCollection = $documentsCollection;
 
@@ -94,9 +94,9 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @return Document|null
+     * @return Document
      */
-    public function getFirstItem()
+    public function getFirstItem(): Document
     {
         $arrayKeys = array_keys($this->documentsCollection);
         if (isset($arrayKeys[0])) {
@@ -107,18 +107,18 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function getFacets()
+    public function getFacets(): ?array
     {
         return $this->facets;
     }
 
     /**
-     * @param array $facets
-     * @return Response
+     * @param array|null $facets
+     * @return ResponseInterface
      */
-    public function setFacets($facets)
+    public function setFacets(?array $facets): ResponseInterface
     {
         $this->facets = $facets;
 
@@ -126,18 +126,18 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function getStats()
+    public function getStats(): ?array
     {
         return $this->stats;
     }
 
     /**
-     * @param array $stats
-     * @return Response
+     * @param array|null $stats
+     * @return ResponseInterface
      */
-    public function setStats($stats)
+    public function setStats(?array $stats): ResponseInterface
     {
         $this->stats = $stats;
 
@@ -145,18 +145,18 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @return array
+     * @return int
      */
-    public function getCurrentPage()
+    public function getCurrentPage(): int
     {
         return $this->currentPage;
     }
 
     /**
-     * @param array $facets
-     * @return Response
+     * @param int $currentPage
+     * @return ResponseInterface
      */
-    public function setCurrentPage($currentPage)
+    public function setCurrentPage(int $currentPage): ResponseInterface
     {
         $this->currentPage = $currentPage;
 

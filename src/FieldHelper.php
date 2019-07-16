@@ -68,22 +68,12 @@ class FieldHelper
     ];
 
     /**
-     * @var array
-     */
-    public static $mapProductsGraphQlTemporary = [
-        'category_id' => 'category_ids_i_mv',
-    ];
-
-    /**
      * @param Field $field
      *
      * @return string
      */
     public static function getFieldName($field)
     {
-        if (isset(self::$mapProductsGraphQlTemporary[$field->getName()])) {
-            return self::$mapProductsGraphQlTemporary[$field->getName()];
-        }
         $fieldMappedType = self::$mapFieldType[$field->getType()] ?? self::SOLR_FIELD_TYPE_STATIC;
         $indexable = $field->getIndexable() === false ? in_array($field->getName(), self::$mapIndexedByFieldNameTemporary) : $field->getIndexable();
 

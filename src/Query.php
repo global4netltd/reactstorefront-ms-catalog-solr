@@ -4,10 +4,10 @@ namespace G4NReact\MsCatalogSolr;
 
 use Exception;
 use G4NReact\MsCatalog\AbstractQuery;
+use G4NReact\MsCatalog\Document\Field;
 use G4NReact\MsCatalog\ResponseInterface;
 use G4NReact\MsCatalogSolr\Client\Client as MsCatalogSolrClient;
 use Solarium\QueryType\Select\Query\Query as SolariumSelectQuery;
-use G4NReact\MsCatalog\Document\Field;
 
 /**
  * Class Query
@@ -81,7 +81,10 @@ class Query extends AbstractQuery
             $queryFilter = '(' . implode(' OR ', $multi) . ')';
         } elseif (stripos($value, '\-') !== false) {
             $queryFilter = $value;
-        } elseif (stripos($value, '-') !== false) {
+        } elseif (($field->getType() == Field::FIELD_TYPE_FLOAT) && stripos($value, '-') !== false) {
+            /**
+             * @todo handle other numeric types !!!
+             */
             $ranges = explode('-', $value);
             if (isset($ranges[0]) && isset($ranges[1])) {
                 $queryFilter = '[' . $ranges[0] . ' TO ' . $ranges[1] . ']';
@@ -135,7 +138,7 @@ class Query extends AbstractQuery
         $fields = [];
         /** @var Field $field */
         foreach ($this->fields as $field) {
-            $fields [] = $field->getName();
+            $fields [] = FieldHelper::getFieldName($field);
         }
 
         return $fields;
@@ -157,7 +160,7 @@ class Query extends AbstractQuery
     protected function prepareSorts()
     {
         $sorts = [];
-        foreach ($this->sort as $sort){
+        foreach ($this->sort as $sort) {
             $sorts[$sort['field']] = $sort['direction'];
         }
 

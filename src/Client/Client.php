@@ -61,7 +61,7 @@ class Client implements ClientInterface
      *
      * @return \G4NReact\MsCatalog\ResponseInterface
      */
-    public function add($fields): ResponseInterface
+    public function add(array $fields): ResponseInterface
     {
         $update = $this->client->createUpdate();
         $document = $update->createDocument($fields);
@@ -178,8 +178,11 @@ class Client implements ClientInterface
             var_dump($e->getMessage());
             die;
         }
+
         $response = new Response();
+
         $response
+            ->setQuery($query)
             ->setDocumentsCollection($result->getData()['response']['docs'])
             ->setNumFound($result->getData()['response']['numFound'] ?? 0)
             ->setFacets($result->getData()['facet_counts']['facet_queries'] ?? null)
@@ -194,7 +197,7 @@ class Client implements ClientInterface
         /**
          * @todo too much response data vs requested (fields like created_at, display mode etc)
          */
-        foreach ($response->getDocumentsCollection() as $docKey =>  $document) {
+        foreach ($response->getDocumentsCollection() as $docKey => $document) {
             $newDocument = new Document();
             foreach ($document as $fieldName => $fieldValue) {
                 $field = FieldHelper::createFieldByResponseField($fieldName, $fieldValue);

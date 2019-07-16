@@ -18,8 +18,8 @@ use G4NReact\MsCatalogSolr\Pusher;
 use G4NReact\MsCatalogSolr\Query as MsCatalogSolrQuery;
 use G4NReact\MsCatalogSolr\Response;
 use Solarium\Client as SolariumClient;
-use Solarium\Core\Query\QueryInterface;
 use Solarium\Core\Query\QueryInterface as SolariumQueryInterface;
+use Solarium\Core\Query\Result\ResultInterface as SolariumResultInterface;
 use Solarium\Exception\UnexpectedValueException;
 use Solarium\QueryType\Select\Query\Query;
 
@@ -59,7 +59,7 @@ class Client implements ClientInterface
     /**
      * @param array $fields
      *
-     * @return \G4NReact\MsCatalog\ResponseInterface
+     * @return ResponseInterface
      */
     public function add(array $fields): ResponseInterface
     {
@@ -72,7 +72,11 @@ class Client implements ClientInterface
         $result = $this->client->update($update);
         $response = new Response();
 
+        // @ToDo: check in config if we should debug, if no add empty array
+        $debugInfo = $this->getDebugInfo($result);
+
         return $response
+            ->setDebugInfo($debugInfo)
             ->setStatusMessage($result->getResponse()->getStatusMessage())
             ->setStatusCode($result->getResponse()->getStatusCode());
     }
@@ -80,7 +84,7 @@ class Client implements ClientInterface
     /**
      * @param int|string $id
      *
-     * @return \G4NReact\MsCatalog\ResponseInterface
+     * @return ResponseInterface
      */
     public function deleteById($id): ResponseInterface
     {
@@ -92,7 +96,11 @@ class Client implements ClientInterface
         $result = $this->client->update($update);
         $response = new Response();
 
+        // @ToDo: check in config if we should debug, if no add empty array
+        $debugInfo = $this->getDebugInfo($result);
+
         return $response
+            ->setDebugInfo($debugInfo)
             ->setStatusCode($result->getResponse()->getStatusCode())
             ->setStatusMessage($result->getResponse()->getStatusMessage());
     }
@@ -100,7 +108,7 @@ class Client implements ClientInterface
     /**
      * @param array $ids
      *
-     * @return \G4NReact\MsCatalog\ResponseInterface
+     * @return ResponseInterface
      */
     public function deleteByIds(array $ids): ResponseInterface
     {
@@ -113,7 +121,11 @@ class Client implements ClientInterface
         $result = $this->client->update($update);
         $response = new Response();
 
+        // @ToDo: check in config if we should debug, if no add empty array
+        $debugInfo = $this->getDebugInfo($result);
+
         return $response
+            ->setDebugInfo($debugInfo)
             ->setStatusCode($result->getResponse()->getStatusCode())
             ->setStatusMessage($result->getResponse()->getStatusMessage());
     }
@@ -134,7 +146,11 @@ class Client implements ClientInterface
         $result = $this->client->update($update);
         $response = new Response();
 
+        // @ToDo: check in config if we should debug, if no add empty array
+        $debugInfo = $this->getDebugInfo($result);
+
         return $response
+            ->setDebugInfo($debugInfo)
             ->setStatusCode($result->getResponse()->getStatusCode())
             ->setStatusMessage($result->getResponse()->getStatusMessage());
     }
@@ -152,7 +168,11 @@ class Client implements ClientInterface
 
         $response = new Response();
 
+        // @ToDo: check in config if we should debug, if no add empty array
+        $debugInfo = $this->getDebugInfo($result);
+
         return $response
+            ->setDebugInfo($debugInfo)
             ->setDocumentsCollection($result->getData())
             ->setNumFound(count($result->getData()))
             ->setStatusCode($result->getResponse()->getStatusCode())
@@ -166,7 +186,7 @@ class Client implements ClientInterface
      */
     public function query($query): ResponseInterface
     {
-        if (!($query instanceof QueryInterface)) {
+        if (!($query instanceof SolariumQueryInterface)) {
             throw new UnexpectedValueException(
                 'query must implement Query Interface'
             );
@@ -181,7 +201,11 @@ class Client implements ClientInterface
 
         $response = new Response();
 
+        // @ToDo: check in config if we should debug, if no add empty array
+        $debugInfo = $this->getDebugInfo($result);
+
         $response
+            ->setDebugInfo($debugInfo)
             ->setQuery($query)
             ->setDocumentsCollection($result->getData()['response']['docs'])
             ->setNumFound($result->getData()['response']['numFound'] ?? 0)
@@ -268,5 +292,24 @@ class Client implements ClientInterface
     public function getField(string $name, $value = null, string $type = '', bool $indexable = false, bool $multiValued = false, array $args = [])
     {
         return new Field($name, $value, $type, $indexable, $multiValued, $args);
+    }
+
+    /**
+     * @param SolariumResultInterface $result
+     * @return array
+     */
+    public function getDebugInfo(SolariumResultInterface $result): array
+    {
+        $debugQuery = $result->getQuery();
+        $builder = $debugQuery->getRequestBuilder();
+        $debugRequest = $builder->build($debugQuery);
+
+        $debugInfo = [
+            'options' => $debugRequest->getOptions(),
+            'params' => $debugRequest->getParams(),
+            'uri' => $debugRequest->getUri(),
+        ];
+
+        return $debugInfo;
     }
 }

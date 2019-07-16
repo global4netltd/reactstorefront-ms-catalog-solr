@@ -56,6 +56,11 @@ class Response implements ResponseInterface
     protected $query;
 
     /**
+     * @var array
+     */
+    protected $debugInfo;
+
+    /**
      * @return int
      */
     public function getNumFound(): int
@@ -219,5 +224,24 @@ class Response implements ResponseInterface
     public function getQuery()
     {
         return $this->query;
+    }
+
+    /**
+     * @param array $debugInfo
+     * @return ResponseInterface
+     */
+    public function setDebugInfo(array $debugInfo): ResponseInterface
+    {
+        $this->debugInfo = $debugInfo;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDebugInfo(): array
+    {
+        return $this->debugInfo;
     }
 }

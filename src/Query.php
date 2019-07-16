@@ -41,6 +41,7 @@ class Query extends AbstractQuery
             ->setFields($this->prepareFields());
 
         $this->query = $query;
+        $this->setSorts();
         $this->addFiltersToQuery();
         $this->addFacetsToQuery();
         $this->addStatsToQuery();
@@ -146,8 +147,21 @@ class Query extends AbstractQuery
     protected function setSorts()
     {
         if ($this->sort) {
-            $this->query->setSorts($this->sort);
+            $this->query->setSorts($this->prepareSorts());
         }
+    }
+
+    /**
+     * @return array
+     */
+    protected function prepareSorts()
+    {
+        $sorts = [];
+        foreach ($this->sort as $sort){
+            $sorts[$sort['field']] = $sort['direction'];
+        }
+
+        return $sorts;
     }
 
     /**

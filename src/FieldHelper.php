@@ -30,29 +30,29 @@ class FieldHelper
      * @var array
      */
     public static $mapFieldType = [
-        Field::FIELD_TYPE_STATIC   => self::SOLR_FIELD_TYPE_STATIC,
-        Field::FIELD_TYPE_STRING   => self::SOLR_FIELD_TYPE_STRING,
-        Field::FIELD_TYPE_INT      => self::SOLR_FIELD_TYPE_INT,
-        Field::FIELD_TYPE_TEXT     => self::SOLR_FIELD_TYPE_TEXT,
-        Field::FIELD_TYPE_VARCHAR  => self::SOLR_FIELD_TYPE_STRING,
+        Field::FIELD_TYPE_STATIC => self::SOLR_FIELD_TYPE_STATIC,
+        Field::FIELD_TYPE_STRING => self::SOLR_FIELD_TYPE_STRING,
+        Field::FIELD_TYPE_INT => self::SOLR_FIELD_TYPE_INT,
+        Field::FIELD_TYPE_TEXT => self::SOLR_FIELD_TYPE_TEXT,
+        Field::FIELD_TYPE_VARCHAR => self::SOLR_FIELD_TYPE_STRING,
         Field::FIELD_TYPE_DATETIME => self::SOLR_FIELD_TYPE_DATETIME,
-        Field::FIELD_TYPE_DECIMAL  => self::SOLR_FIELD_TYPE_FLOAT,
-        Field::FIELD_TYPE_FLOAT    => self::SOLR_FIELD_TYPE_FLOAT,
-        Field::FIELD_TYPE_DOUBLE   => self::SOLR_FIELD_TYPE_FLOAT, // check if neccessary
-        Field::FIELD_TYPE_BOOL     => self::SOLR_FIELD_TYPE_BOOL,
+        Field::FIELD_TYPE_DECIMAL => self::SOLR_FIELD_TYPE_FLOAT,
+        Field::FIELD_TYPE_FLOAT => self::SOLR_FIELD_TYPE_FLOAT,
+        Field::FIELD_TYPE_DOUBLE => self::SOLR_FIELD_TYPE_FLOAT, // check if neccessary
+        Field::FIELD_TYPE_BOOL => self::SOLR_FIELD_TYPE_BOOL,
     ];
 
     /**
      * @var array
      */
     public static $mapSolrFieldTypeToFieldType = [
-        self::SOLR_FIELD_TYPE_TEXT     => Field::FIELD_TYPE_STRING,
-        self::SOLR_FIELD_TYPE_STRING   => Field::FIELD_TYPE_STRING,
-        self::SOLR_FIELD_TYPE_INT      => Field::FIELD_TYPE_INT,
+        self::SOLR_FIELD_TYPE_TEXT => Field::FIELD_TYPE_STRING,
+        self::SOLR_FIELD_TYPE_STRING => Field::FIELD_TYPE_STRING,
+        self::SOLR_FIELD_TYPE_INT => Field::FIELD_TYPE_INT,
         self::SOLR_FIELD_TYPE_DATETIME => Field::FIELD_TYPE_DATETIME,
-        self::SOLR_FIELD_TYPE_FLOAT    => Field::FIELD_TYPE_FLOAT,
-        self::SOLR_FIELD_TYPE_BOOL     => Field::FIELD_TYPE_BOOL,
-        self::SOLR_FIELD_TYPE_STATIC   => Field::FIELD_TYPE_STATIC
+        self::SOLR_FIELD_TYPE_FLOAT => Field::FIELD_TYPE_FLOAT,
+        self::SOLR_FIELD_TYPE_BOOL => Field::FIELD_TYPE_BOOL,
+        self::SOLR_FIELD_TYPE_STATIC => Field::FIELD_TYPE_STATIC
     ];
 
     /**
@@ -67,12 +67,20 @@ class FieldHelper
         'sku'
     ];
 
+    public static $mapProductsGraphQlTemporary = [
+        'category_id' => 'category_ids_i_mv',
+    ];
+
     /**
      * @param Field $field
+     *
      * @return string
      */
     public static function getFieldName($field)
     {
+        if (isset(self::$mapProductsGraphQlTemporary[$field->getName()])) {
+            return self::$mapProductsGraphQlTemporary[$field->getName()];
+        }
         $fieldMappedType = self::$mapFieldType[$field->getType()] ?? self::SOLR_FIELD_TYPE_STATIC;
         $indexable = $field->getIndexable() === false ? in_array($field->getName(), self::$mapIndexedByFieldNameTemporary) : $field->getIndexable();
 
@@ -85,6 +93,7 @@ class FieldHelper
     /**
      * @param string $solrFieldName
      * @param mixed $value
+     *
      * @return Field
      */
     public static function createFieldByResponseField(string $solrFieldName, $value): Field

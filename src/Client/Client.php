@@ -191,11 +191,15 @@ class Client implements ClientInterface
             ->setQuery($query)
             ->setDocumentsCollection($result->getData()['response']['docs'])
             ->setNumFound($result->getData()['response']['numFound'] ?? 0)
-            ->setFacets($result->getFacetSet()->getFacets())
             ->setStats($result->getStats())
             ->setCurrentPage($result->getQuery()->getOption('start'))
             ->setStatusMessage($result->getResponse()->getStatusMessage())
             ->setStatusCode($result->getResponse()->getStatusCode());
+
+        if ($result->getFacetSet()) {
+            $response->setFacets($result->getFacetSet()->getFacets());
+        }
+
 
         /** TODO move it to another function */
         $newDocumentColl = [];

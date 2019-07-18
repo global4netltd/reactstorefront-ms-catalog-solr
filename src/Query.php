@@ -6,6 +6,7 @@ use Exception;
 use G4NReact\MsCatalog\AbstractQuery;
 use G4NReact\MsCatalog\Document\Field;
 use G4NReact\MsCatalog\ResponseInterface;
+use G4NReact\MsCatalogMagento2\Model\Attribute\SearchTerms;
 use G4NReact\MsCatalogSolr\Client\Client as MsCatalogSolrClient;
 use Solarium\QueryType\Select\Query\Query as SolariumSelectQuery;
 
@@ -33,9 +34,10 @@ class Query extends AbstractQuery
         /** @var MsCatalogSolrClient $client */
         $client = $this->getClient();
         $this->fieldHelper = new FieldHelper();
+
         $query = $client
             ->getSelect()
-            ->setQuery($this->getQueryText() ?? '*:*')
+            ->setQuery('*:*')
             ->setStart($this->getPageStart())
             ->setRows($this->getPageSize())
             ->setFields($this->prepareFields());
@@ -47,6 +49,25 @@ class Query extends AbstractQuery
         $this->addStatsToQuery();
 
         return $this->query;
+    }
+
+    /**
+     * @return string
+     */
+    protected function buildQueryText()
+    {
+        $queryString = $this->getQueryText();
+
+        if ($queryString) {
+            $queryArray = [];
+            for ($i = 1; $i <= 10; $i++) {
+                $queryArray[] = SearchTerms::SEARCH_TERMS_FIELD_NAME . '_' . $i . '_t:"' . $queryString . '"~100^5';
+            }
+
+            return implode(' OR ', $queryArray);
+        }
+
+        return '';
     }
 
     /**
@@ -78,7 +99,9 @@ class Query extends AbstractQuery
         $queryFilter = '';
         $value = $field->getValue();
 
-        if (stripos($value, ',') !== false) {
+        if (is_array($value)) {
+            $queryFilter = '(' . implode(' OR ', $value) . ')';
+        } elseif (stripos($value, ',') !== false) {
             $multi = explode(',', $value);
             $queryFilter = '(' . implode(' OR ', $multi) . ')';
         } elseif (stripos($value, '\-') !== false) {

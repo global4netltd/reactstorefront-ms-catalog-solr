@@ -298,6 +298,7 @@ class Client implements ClientInterface
             'options' => $debugRequest->getOptions(),
             'params' => $debugRequest->getParams(),
             'uri' => $debugRequest->getUri(),
+            'raw_data' => $debugRequest->getRawData(),
         ];
 
         return $debugInfo;

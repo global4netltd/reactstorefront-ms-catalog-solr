@@ -18,6 +18,8 @@ use Solarium\Client;
  */
 class Pusher implements PusherInterface
 {
+    const DEFAULT_PAGESIZE = 500;
+
     /**
      * @var SolrConfig
      */
@@ -46,7 +48,8 @@ class Pusher implements PusherInterface
      */
     public function push($documents): ResponseInterface
     {
-        $pageSize = $this->config->getPageSize();
+        $pageSize = $this->config->getPageSize() ?: self::DEFAULT_PAGESIZE;
+
         $response = new Response();
         if ($documents) {
             try {

@@ -122,17 +122,18 @@ class Client implements ClientInterface
     }
 
     /**
-     * @param $field
-     * @param $value
+     * @param Field[] $fields
      *
      * @return ResponseInterface
      */
-    public function deleteByField($field, $value): ResponseInterface
+    public function deleteByFields(array $fields): ResponseInterface
     {
         $update = $this->client->createUpdate();
-        $update
-            ->addDeleteQuery($field . ':' . $value)
-            ->addCommit();
+
+        if ($deleteQuery = $this->prepareDeleteQueryByFields($fields)) {
+            $update->addDeleteQuery($deleteQuery);
+            $update->addCommit();
+        }
 
         $result = $this->client->update($update);
         $response = new Response();
@@ -141,6 +142,23 @@ class Client implements ClientInterface
             ->setDebugInfo($this->getDebugInfo($result))
             ->setStatusCode($result->getResponse()->getStatusCode())
             ->setStatusMessage($result->getResponse()->getStatusMessage());
+    }
+
+    /**
+     * @param array $fields
+     *
+     * @return string
+     */
+    protected function prepareDeleteQueryByFields(array $fields)
+    {
+        $query = '';
+        /** @var Field $field */
+        foreach ($fields as $field) {
+            !empty($query) ? $query .= ' AND ' : $query .= '';
+            $query .= FieldHelper::getFieldName($field) . ':' . $field->getValue();
+        }
+
+        return (string)$query;
     }
 
     /**
@@ -282,6 +300,7 @@ class Client implements ClientInterface
 
     /**
      * @param SolariumResultInterface $result
+     *
      * @return array
      */
     public function getDebugInfo(SolariumResultInterface $result): array

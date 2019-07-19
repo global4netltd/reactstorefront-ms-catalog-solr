@@ -74,7 +74,7 @@ class Pusher implements PusherInterface
                                 continue;
                             }
                             if (!$field->getIndexable()) {
-                                $field->setIndexable($this->checkIfIndexedFieldName($field->getName()));
+                                $field->setIndexable($field->getName());
                             }
                             $solrFieldName = $field->getName()
                                 . (Helper::$mapFieldType[$field->getType()] ?? Helper::SOLR_FIELD_TYPE_DEFAULT)
@@ -111,31 +111,6 @@ class Pusher implements PusherInterface
         }
 
         return $response;
-    }
-
-    /**
-     * @return array
-     */
-    protected function getIndexedFieldNamesTemporary()
-    {
-        return [
-            'entity_id',
-            'store_id',
-            'url_key',
-            'parent_id',
-            'path',
-            'sku'
-        ];
-    }
-
-    /**
-     * @param string $fieldName
-     *
-     * @return bool
-     */
-    protected function checkIfIndexedFieldName(string $fieldName)
-    {
-        return in_array($fieldName, $this->getIndexedFieldNamesTemporary());
     }
 
     /**

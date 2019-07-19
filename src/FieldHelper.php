@@ -34,12 +34,16 @@ class FieldHelper
         Field::FIELD_TYPE_STRING => self::SOLR_FIELD_TYPE_STRING,
         Field::FIELD_TYPE_INT => self::SOLR_FIELD_TYPE_INT,
         Field::FIELD_TYPE_TEXT => self::SOLR_FIELD_TYPE_TEXT,
+        Field::FIELD_TYPE_MEDIUMTEXT => self::SOLR_FIELD_TYPE_TEXT,
+        Field::FIELD_TYPE_SMALLINT => self::SOLR_FIELD_TYPE_INT,
         Field::FIELD_TYPE_VARCHAR => self::SOLR_FIELD_TYPE_STRING,
         Field::FIELD_TYPE_DATETIME => self::SOLR_FIELD_TYPE_DATETIME,
         Field::FIELD_TYPE_DECIMAL => self::SOLR_FIELD_TYPE_FLOAT,
         Field::FIELD_TYPE_FLOAT => self::SOLR_FIELD_TYPE_FLOAT,
         Field::FIELD_TYPE_DOUBLE => self::SOLR_FIELD_TYPE_FLOAT, // check if neccessary
         Field::FIELD_TYPE_BOOL => self::SOLR_FIELD_TYPE_BOOL,
+        Field::FIELD_TYPE_TIMESTAMP => self::SOLR_FIELD_TYPE_DATETIME,
+        Field::FIELD_TYPE_DATE => self::SOLR_FIELD_TYPE_DATETIME
     ];
 
     /**

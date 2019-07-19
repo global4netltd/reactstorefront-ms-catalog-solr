@@ -76,7 +76,7 @@ class QueryBuilder implements \G4NReact\MsCatalog\QueryBuilderInterface
 
         if (isset($this->options['facet'])) {
             $this->query->setFacet(true);
-            $this->query->setFacetFilds($this->options['facet']);
+            $this->query->setFacetFields($this->options['facet']);
         }
 
         if (isset($this->options['pageSize'])) {

@@ -112,7 +112,7 @@ class Query implements \G4NReact\MsCatalog\QueryInterface
      * @param string $text
      * @return string
      */
-    public function setFacetFilds($facets)
+    public function setFacetFields($facets)
     {
         $this->facetFields = $facets;
     }
@@ -126,7 +126,7 @@ class Query implements \G4NReact\MsCatalog\QueryInterface
     /**
      * @return string
      */
-    public function getFacetFilds()
+    public function getFacetFields()
     {
         return $this->facetFields;
     }

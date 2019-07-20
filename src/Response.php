@@ -51,7 +51,7 @@ class Response implements ResponseInterface
     private $statusMessage = 'empty';
 
     /**
-     * @var String
+     * @var MsCatalogQueryInterface|string
      */
     protected $query;
 
@@ -218,7 +218,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @return MsCatalogQueryInterface|String
+     * @return MsCatalogQueryInterface|string
      * @throws Exception
      */
     public function getQuery()

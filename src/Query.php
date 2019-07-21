@@ -37,7 +37,7 @@ class Query extends AbstractQuery
 
         $query = $client
             ->getSelect()
-            ->setQuery('*:*')
+            ->setQuery($this->buildQueryText())
             ->setStart($this->getPageStart())
             ->setRows($this->getPageSize())
             ->setFields($this->prepareFields());
@@ -67,7 +67,7 @@ class Query extends AbstractQuery
             return implode(' OR ', $queryArray);
         }
 
-        return '';
+        return '*:*';
     }
 
     /**
@@ -99,8 +99,8 @@ class Query extends AbstractQuery
         $queryFilter = '';
         $value = $field->getValue();
 
-        if (is_array($value)) {
-            $queryFilter = '(' . implode(' OR ', $value) . ')';
+        if (is_array($value) && $value) {
+            $queryFilter = '("' . implode('" OR "', $value) . '")';
         } elseif (stripos($value, ',') !== false) {
             $multi = explode(',', $value);
             $queryFilter = '(' . implode(' OR ', $multi) . ')';

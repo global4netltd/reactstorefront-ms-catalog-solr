@@ -17,6 +17,7 @@ class FieldHelper
     const SOLR_FIELD_TYPE_DATETIME = 'dt';
     const SOLR_FIELD_TYPE_FLOAT = 'f';
     const SOLR_FIELD_TYPE_BOOL = 'b';
+    const SOLR_FIELD_TYPE_TEXT_SEARCH = 'txt';
 
     const SOLR_NOT_INDEXABLE_MARK = 'ni';
     const SOLR_MULTI_VALUE_MARK = 'mv';
@@ -43,7 +44,8 @@ class FieldHelper
         Field::FIELD_TYPE_DOUBLE => self::SOLR_FIELD_TYPE_FLOAT, // check if neccessary
         Field::FIELD_TYPE_BOOL => self::SOLR_FIELD_TYPE_BOOL,
         Field::FIELD_TYPE_TIMESTAMP => self::SOLR_FIELD_TYPE_DATETIME,
-        Field::FIELD_TYPE_DATE => self::SOLR_FIELD_TYPE_DATETIME
+        Field::FIELD_TYPE_DATE => self::SOLR_FIELD_TYPE_DATETIME,
+        Field::FIELD_TYPE_TEXT_SEARCH => self::SOLR_FIELD_TYPE_TEXT_SEARCH
     ];
 
     /**
@@ -56,7 +58,8 @@ class FieldHelper
         self::SOLR_FIELD_TYPE_DATETIME => Field::FIELD_TYPE_DATETIME,
         self::SOLR_FIELD_TYPE_FLOAT => Field::FIELD_TYPE_FLOAT,
         self::SOLR_FIELD_TYPE_BOOL => Field::FIELD_TYPE_BOOL,
-        self::SOLR_FIELD_TYPE_STATIC => Field::FIELD_TYPE_STATIC
+        self::SOLR_FIELD_TYPE_STATIC => Field::FIELD_TYPE_STATIC,
+        self::SOLR_FIELD_TYPE_TEXT_SEARCH => Field::FIELD_TYPE_TEXT
     ];
 
     /**

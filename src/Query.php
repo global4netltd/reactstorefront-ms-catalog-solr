@@ -87,7 +87,7 @@ class Query extends AbstractQuery
     /**
      * @return array
      */
-    protected function prepareFilterQuries() : array
+    protected function prepareFilterQuries(): array
     {
         $filterQueries = [];
         $filters = $this->filters;
@@ -97,7 +97,10 @@ class Query extends AbstractQuery
             }
             if ($filter[self::OPERATOR] == self::OR_OPERATOR && $filterQuery && $filterQueryKey) {
                 $filterQuery = $filterQuery . ' ' . self::OR_OPERATOR . ' ' . $this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]);
-                $filterQueries[$filterQueryKey] = $filterQuery;
+                if (isset($filterQueries[$filterQueryKey])) {
+                    unset($filterQueries[$filterQueryKey]);
+                }
+                $filterQueries[$filterQueryKey . ' ' . self::OR_OPERATOR . ' ' . $key] = $filterQuery;
             } else {
                 $filterQuery = $this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]);
                 $filterQueryKey = $key;

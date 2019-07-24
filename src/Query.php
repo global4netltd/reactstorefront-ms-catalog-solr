@@ -131,7 +131,9 @@ class Query extends AbstractQuery
             $queryFilter = '(' . implode(' OR ', $multi) . ')';
         } elseif (stripos($value, '\-') !== false) {
             $queryFilter = $value;
-        } elseif (($field->getType() == Field::FIELD_TYPE_FLOAT || Field::FIELD_TYPE_INT) && stripos($value, '-') !== false) {
+        } elseif ((($field->getType() == Field::FIELD_TYPE_FLOAT
+                || $field->getType() == Field::FIELD_TYPE_INT))
+            && stripos($value, '-') !== false) {
             /**
              * @todo handle other numeric types !!!
              */
@@ -139,6 +141,8 @@ class Query extends AbstractQuery
             if (isset($ranges[0]) && isset($ranges[1])) {
                 $queryFilter = '[' . $ranges[0] . ' TO ' . $ranges[1] . ']';
             }
+        } elseif($field->getType() == Field::FIELD_TYPE_STRING || $field->getType() == Field::FIELD_TYPE_TEXT) {
+            $queryFilter = "\"$value\""; // match exact value
         } else {
             $queryFilter = $value;
         }

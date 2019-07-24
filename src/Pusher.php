@@ -54,9 +54,6 @@ class Pusher implements PusherInterface
             try {
                 $update = $this->client->createUpdate();
 
-                // @ToDo: delete index before reindexing if setting == true -> set delete query eg '*:*' or 'product_type:"category"'
-//                $this->clearIndex();
-
                 $i = 0;
                 $counter = 0;
                 /** @var Document $document */
@@ -78,9 +75,6 @@ class Pusher implements PusherInterface
                         foreach ($document->getData() as $field) {
                             if (!$field->getValue()) {
                                 continue;
-                            }
-                            if (!$field->getIndexable()) {
-                                $field->setIndexable($this->checkIfIndexedFieldName($field->getName()));
                             }
 
                             $solrFieldName = FieldHelper::getFieldName($field);
@@ -118,16 +112,6 @@ class Pusher implements PusherInterface
         }
 
         return $response;
-    }
-
-    /**
-     * @param string $fieldName
-     *
-     * @return bool
-     */
-    protected function checkIfIndexedFieldName(string $fieldName)
-    {
-        return in_array($fieldName, FieldHelper::$mapIndexedByFieldNameTemporary);
     }
 
     /**

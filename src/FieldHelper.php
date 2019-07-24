@@ -63,18 +63,6 @@ class FieldHelper
     ];
 
     /**
-     * @return array
-     */
-    public static $mapIndexedByFieldNameTemporary = [
-        'entity_id',
-        'store_id',
-        'url_key',
-        'parent_id',
-        'path',
-        'sku'
-    ];
-
-    /**
      * @param Field $field
      *
      * @return string
@@ -82,11 +70,10 @@ class FieldHelper
     public static function getFieldName($field)
     {
         $fieldMappedType = self::$mapFieldType[$field->getType()] ?? self::SOLR_FIELD_TYPE_STATIC;
-        $indexable = $field->getIndexable() === false ? in_array($field->getName(), self::$mapIndexedByFieldNameTemporary) : $field->getIndexable();
 
         return $field->getName()
             . ($fieldMappedType ? ('_' . $fieldMappedType) : $fieldMappedType)
-            . ($indexable ? '' : ('_' . self::SOLR_NOT_INDEXABLE_MARK))
+            . ($field->getIndexable() ? '' : ('_' . self::SOLR_NOT_INDEXABLE_MARK))
             . ($field->getMultiValued() ? ('_' . self::SOLR_MULTI_VALUE_MARK) : '');
     }
 

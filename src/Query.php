@@ -140,7 +140,7 @@ class Query extends AbstractQuery
             if (isset($ranges[0]) && isset($ranges[1])) {
                 $queryFilter = '[' . $ranges[0] . ' TO ' . $ranges[1] . ']';
             }
-        } elseif($field->getType() == Field::FIELD_TYPE_STRING || $field->getType() == Field::FIELD_TYPE_TEXT) {
+        } elseif ($field->getType() == Field::FIELD_TYPE_STRING || $field->getType() == Field::FIELD_TYPE_TEXT) {
             $queryFilter = "\"$value\""; // match exact value
         } else {
             $queryFilter = $value;

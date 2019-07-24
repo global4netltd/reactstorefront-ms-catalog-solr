@@ -17,7 +17,7 @@ class FieldHelper
     const SOLR_FIELD_TYPE_DATETIME = 'dt';
     const SOLR_FIELD_TYPE_FLOAT = 'f';
     const SOLR_FIELD_TYPE_BOOL = 'b';
-    const SOLR_FIELD_TYPE_TEXT_SEARCH = 'txt';
+    const SOLR_FIELD_TYPE_TEXT_SEARCH = 'ngram';
 
     const SOLR_NOT_INDEXABLE_MARK = 'ni';
     const SOLR_MULTI_VALUE_MARK = 'mv';

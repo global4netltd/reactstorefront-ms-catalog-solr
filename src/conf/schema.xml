@@ -292,6 +292,7 @@
     <dynamicField name="random_*" type="random"/>
     <dynamicField name="*_t_sort" type="text_gen_sort" multiValued="false" indexed="true" stored="true"/>
     <dynamicField name="*_txt_en" type="text_en" indexed="true" stored="true"/>
+    <dynamicField name="*_ngram" type="text_ngram" indexed="true" stored="true"/>
     <dynamicField name="*_point" type="point" indexed="true" stored="true"/>
     <dynamicField name="*_srpt" type="location_rpt" indexed="true" stored="true"/>
     <dynamicField name="attr_*" type="text_general" multiValued="true" indexed="true" stored="true"/>

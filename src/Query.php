@@ -95,7 +95,7 @@ class Query extends AbstractQuery
             if (!isset($filter[self::FIELD]) || !isset($filter[self::NEGATIVE]) || !isset($filter[self::OPERATOR])) {
                 continue;
             }
-            if ($filter[self::OPERATOR] == self::OR_OPERATOR && $filterQuery && $filterQueryKey) {
+            if ($filter[self::OPERATOR] == self::OR_OPERATOR && isset($filterQuery) && isset($filterQueryKey)) {
                 $filterQuery = $filterQuery . ' ' . self::OR_OPERATOR . ' ' . $this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]);
                 if (isset($filterQueries[$filterQueryKey])) {
                     unset($filterQueries[$filterQueryKey]);

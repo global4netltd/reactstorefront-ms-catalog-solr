@@ -6,6 +6,7 @@ use Exception;
 use G4NReact\MsCatalog\Document;
 use G4NReact\MsCatalog\QueryInterface as MsCatalogQueryInterface;
 use G4NReact\MsCatalog\ResponseInterface;
+use Solarium\Component\Result\Stats\Stats;
 
 /**
  * deprecated moved to ms-catalog
@@ -133,16 +134,16 @@ class Response implements ResponseInterface
     /**
      * @return array|null
      */
-    public function getStats(): ?array
+    public function getStats(): ?Stats
     {
         return $this->stats;
     }
 
     /**
-     * @param array|null $stats
+     * @param Stats $stats
      * @return ResponseInterface
      */
-    public function setStats(?array $stats): ResponseInterface
+    public function setStats(Stats $stats): ResponseInterface
     {
         $this->stats = $stats;
 

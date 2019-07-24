@@ -43,7 +43,6 @@ class Query extends AbstractQuery
             ->setFields($this->prepareFields());
 
         $this->query = $query;
-        $this->setSorts();
         $this->addFiltersToQuery();
         $this->addFacetsToQuery();
         $this->addStatsToQuery();
@@ -175,12 +174,14 @@ class Query extends AbstractQuery
      */
     protected function addStatsToQuery()
     {
+        $stats = $this->query->getStats();
         /**
          * @var  $key
          * @var Field $stat
          */
         foreach ($this->stats as $key => $stat) {
-            $this->query->getStats()->addFacet($key)->createField($this->fieldHelper::getFieldName($stat));
+            $field = $this->fieldHelper::getFieldName($stat);
+            $stats->createField($field);
         }
     }
 
@@ -196,31 +197,6 @@ class Query extends AbstractQuery
         }
 
         return $fields;
-    }
-
-    /**
-     * set Sorts
-     */
-    protected function setSorts()
-    {
-        if ($this->sort) {
-            $this->query->setSorts($this->prepareSorts());
-        }
-    }
-
-    /**
-     * @return array
-     */
-    protected function prepareSorts()
-    {
-        $sorts = [];
-        foreach ($this->sort as $sort) {
-            if (isset($sort['field']) && $sort['field'] instanceof Field && isset($sort['direction'])) {
-                $sorts[FieldHelper::getFieldName($sort['field'])] = $sort['direction'];
-            }
-        }
-
-        return $sorts;
     }
 
     /**

@@ -2,13 +2,12 @@
 
 namespace G4NReact\MsCatalogSolr;
 
+use G4NReact\MsCatalog\ConfigInterface;
 use G4NReact\MsCatalog\Document;
 use G4NReact\MsCatalog\PullerInterface;
 use G4NReact\MsCatalog\QueryInterface;
 use G4NReact\MsCatalog\ResponseInterface;
-use G4NReact\MsCatalog\ConfigInterface;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
-use G4NReact\MsCatalogSolr\Query;
 use Solarium\Client as SolariumClient;
 use Solarium\QueryType\Select\Result\Result;
 
@@ -115,7 +114,7 @@ class Puller implements PullerInterface
 
         // sort the results by price ascending
         foreach ($query->getSort() as $sort) {
-            $solariumQuery->addSort(key($sort), current($sort));
+            $solariumQuery->addSort(FieldHelper::getFieldName($sort), $sort->getValue() ?: 'DESC');
         }
 
         $solariumQuery->setStart($query->getCurrentPage());
@@ -131,7 +130,7 @@ class Puller implements PullerInterface
 
         $resultResponse = $resultset->getData();
         $response->setCurrentPage($resultResponse['response']['start']);
-        
+
         $response->setNumFound($resultset->getNumFound());
 
         if ($query->getFacet()) {
@@ -264,5 +263,22 @@ class Puller implements PullerInterface
                 'localhost' => $this->config->getConnectionConfigArray()
             ]
         ];
+    }
+
+    /**
+     * @param array $ids
+     * @return PullerInterface
+     */
+    public function setIds(array $ids): PullerInterface
+    {
+        // TODO: Implement setIds() method.
+    }
+
+    /**
+     * @return array
+     */
+    public function getIds(): array
+    {
+        // TODO: Implement getIds() method.
     }
 }

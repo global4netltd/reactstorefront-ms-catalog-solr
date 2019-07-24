@@ -47,7 +47,6 @@ class Query extends AbstractQuery
         $this->addFiltersToQuery();
         $this->addFacetsToQuery();
         $this->addStatsToQuery();
-
         return $this->query;
     }
 
@@ -62,7 +61,7 @@ class Query extends AbstractQuery
             $queryArray = [];
             $limit = 10;
             for ($i = 1; $i <= $limit; $i++) {
-                $queryArray[] = SearchTerms::SEARCH_TERMS_FIELD_NAME . '_' . $i . '_' . FieldHelper::$mapFieldType[Field::FIELD_TYPE_TEXT_SEARCH] .  ':"' . $queryString . '"~100^' . (int) ($limit - $i) ;
+                $queryArray[] = SearchTerms::SEARCH_TERMS_FIELD_NAME . '_' . $i . '_' . FieldHelper::$mapFieldType[Field::FIELD_TYPE_TEXT_SEARCH] . ':"' . $queryString . '"~100^' . (int)($limit - $i);
             }
 
             return implode(' OR ', $queryArray);
@@ -76,15 +75,37 @@ class Query extends AbstractQuery
      */
     protected function addFiltersToQuery()
     {
-        foreach ($this->filters as $key => $filter) {
-            if (!isset($filter[self::FIELD]) || !isset($filter[self::NEGATIVE])) {
-                continue;
-            }
+        $filterQueries = $this->prepareFilterQuries();
 
+        foreach ($filterQueries as $key => $filterQuery) {
             $this->query
                 ->createFilterQuery($key)
-                ->setQuery($this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]));
+                ->setQuery($filterQuery);
         }
+    }
+
+    /**
+     * @return array
+     */
+    protected function prepareFilterQuries() : array
+    {
+        $filterQueries = [];
+        $filters = $this->filters;
+        foreach ($filters as $key => $filter) {
+            if (!isset($filter[self::FIELD]) || !isset($filter[self::NEGATIVE]) || !isset($filter[self::OPERATOR])) {
+                continue;
+            }
+            if ($filter[self::OPERATOR] == self::OR_OPERATOR && $filterQuery && $filterQueryKey) {
+                $filterQuery = $filterQuery . ' ' . self::OR_OPERATOR . ' ' . $this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]);
+                $filterQueries[$filterQueryKey] = $filterQuery;
+            } else {
+                $filterQuery = $this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]);
+                $filterQueryKey = $key;
+                $filterQueries[$key] = $filterQuery;
+            }
+        }
+
+        return $filterQueries;
     }
 
     /**
@@ -203,7 +224,6 @@ class Query extends AbstractQuery
     {
         /** @var MsCatalogSolrClient $client */
         $client = $this->getClient();
-
         return $client->query($this->buildQuery());
     }
 }

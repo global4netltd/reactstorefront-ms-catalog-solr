@@ -73,7 +73,7 @@ class Client implements ClientInterface
         $response = new Response();
 
         return $response
-            ->setDebugInfo($this->getDebugInfo($result))
+            ->setDebugInfo($this->getDebugInfo($update))
             ->setStatusMessage($result->getResponse()->getStatusMessage())
             ->setStatusCode($result->getResponse()->getStatusCode());
     }
@@ -94,7 +94,7 @@ class Client implements ClientInterface
         $response = new Response();
 
         return $response
-            ->setDebugInfo($this->getDebugInfo($result))
+            ->setDebugInfo($this->getDebugInfo($update))
             ->setStatusCode($result->getResponse()->getStatusCode())
             ->setStatusMessage($result->getResponse()->getStatusMessage());
     }
@@ -116,7 +116,7 @@ class Client implements ClientInterface
         $response = new Response();
 
         return $response
-            ->setDebugInfo($this->getDebugInfo($result))
+            ->setDebugInfo($this->getDebugInfo($update))
             ->setStatusCode($result->getResponse()->getStatusCode())
             ->setStatusMessage($result->getResponse()->getStatusMessage());
     }
@@ -139,7 +139,7 @@ class Client implements ClientInterface
         $response = new Response();
 
         return $response
-            ->setDebugInfo($this->getDebugInfo($result))
+            ->setDebugInfo($this->getDebugInfo($update))
             ->setStatusCode($result->getResponse()->getStatusCode())
             ->setStatusMessage($result->getResponse()->getStatusMessage());
     }
@@ -175,7 +175,7 @@ class Client implements ClientInterface
         $response = new Response();
 
         return $response
-            ->setDebugInfo($this->getDebugInfo($result))
+            ->setDebugInfo($this->getDebugInfo($query))
             ->setDocumentsCollection($result->getData())
             ->setNumFound(count($result->getData()))
             ->setStatusCode($result->getResponse()->getStatusCode())
@@ -194,19 +194,24 @@ class Client implements ClientInterface
                 'query must implement Query Interface'
             );
         }
+
+        $debugInfo = $this->getDebugInfo($query);
+        $response = new Response();
+        $response
+            ->setQuery($query)
+            ->setDebugInfo($debugInfo);
+
         try {
             $result = $this->client->select($query);
         } catch (Exception $e) {
             /** @todo logger for error */
-            var_dump($e->getMessage());
-            die;
+            $response
+                ->setStatusCode($e->getCode())
+                ->setStatusMessage($e->getMessage());
+            return $response;
         }
 
-        $response = new Response();
-
         $response
-            ->setDebugInfo($this->getDebugInfo($result))
-            ->setQuery($query)
             ->setDocumentsCollection($result->getData()['response']['docs'])
             ->setNumFound($result->getData()['response']['numFound'] ?? 0)
             ->setStats($result->getStats())
@@ -299,19 +304,21 @@ class Client implements ClientInterface
     }
 
     /**
-     * @param SolariumResultInterface $result
-     *
+     * @param SolariumQueryInterface $query
      * @return array
      */
-    public function getDebugInfo(SolariumResultInterface $result): array
+    public function getDebugInfo(SolariumQueryInterface $query): array
     {
         if (!$this->config->isDebugEnabled()) {
             return [];
         }
 
-        $debugQuery = $result->getQuery();
-        $builder = $debugQuery->getRequestBuilder();
-        $debugRequest = $builder->build($debugQuery);
+        $builder = $query->getRequestBuilder();
+        $debugRequest = $builder->build($query);
+
+        if (!$debugRequest) {
+            return [];
+        }
 
         $debugInfo = [
             'options' => $debugRequest->getOptions(),

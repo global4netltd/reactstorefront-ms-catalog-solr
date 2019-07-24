@@ -205,7 +205,10 @@ class Client implements ClientInterface
             $result = $this->client->select($query);
         } catch (Exception $e) {
             /** @todo logger for error */
+            $debugInfo['message'] = $e->getMessage();
+            $debugInfo['code'] = $e->getCode();
             $response
+                ->setDebugInfo($debugInfo)
                 ->setStatusCode($e->getCode())
                 ->setStatusMessage($e->getMessage());
             return $response;

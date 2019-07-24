@@ -65,7 +65,7 @@ class Response implements ResponseInterface
      */
     public function getNumFound(): int
     {
-        return $this->numFound;
+        return $this->numFound ?: 0;
     }
 
     /**
@@ -84,7 +84,7 @@ class Response implements ResponseInterface
      */
     public function getDocumentsCollection(): array
     {
-        return $this->documentsCollection;
+        return $this->documentsCollection ?: [];
     }
 
     /**
@@ -154,7 +154,7 @@ class Response implements ResponseInterface
      */
     public function getCurrentPage(): int
     {
-        return $this->currentPage;
+        return $this->currentPage ?: 0;
     }
 
     /**

@@ -9,6 +9,7 @@ use G4NReact\MsCatalog\QueryInterface;
 use G4NReact\MsCatalog\ResponseInterface;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
 use Solarium\Client as SolariumClient;
+use Solarium\Component\Result\Stats\Stats;
 use Solarium\QueryType\Select\Result\Result;
 
 /**
@@ -162,7 +163,7 @@ class Puller implements PullerInterface
             foreach ($solariumFacet->getValues() as $value => $count) {
                 $facet['values'][] = [
                     'value_id' => $value,
-                    'count' => $count
+                    'count'    => $count
                 ];
             }
 
@@ -183,11 +184,15 @@ class Puller implements PullerInterface
         $statsCollection = [];
 
         foreach ($solariumStats as $code => $solariumStat) {
+            if (!($solariumStat instanceof Stats)) {
+                continue;
+            }
+
             $stat['code'] = $solariumStat->getName();
             $stat['values'] = [
-                'min' => $solariumStat->getMin(),
-                'max' => $solariumStat->getMax(),
-                'sum' => $solariumStat->getSum(),
+                'min'   => $solariumStat->getMin(),
+                'max'   => $solariumStat->getMax(),
+                'sum'   => $solariumStat->getSum(),
                 'count' => $solariumStat->getCount()
             ];
 

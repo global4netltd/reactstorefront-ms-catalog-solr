@@ -20,6 +20,7 @@ class Query extends AbstractQuery
      * @var SolariumSelectQuery
      */
     protected $query;
+
     /**
      * @var FieldHelper
      */
@@ -40,12 +41,14 @@ class Query extends AbstractQuery
             ->setQuery($this->buildQueryText())
             ->setStart($this->getPageStart())
             ->setRows($this->getPageSize())
-            ->setFields($this->prepareFields());
+            ->setFields($this->prepareFields())
+            ->setSorts($this->prepareSorts());
 
         $this->query = $query;
         $this->addFiltersToQuery();
         $this->addFacetsToQuery();
         $this->addStatsToQuery();
+
         return $this->query;
     }
 
@@ -193,10 +196,24 @@ class Query extends AbstractQuery
         $fields = [];
         /** @var Field $field */
         foreach ($this->fields as $field) {
-            $fields [] = FieldHelper::getFieldName($field);
+            $fields[] = FieldHelper::getFieldName($field);
         }
 
         return $fields;
+    }
+
+    /**
+     * @return array
+     */
+    protected function prepareSorts(): array
+    {
+        $sorts = [];
+        /** @var Field $sort */
+        foreach ($this->getSorts() as $sort) {
+            $sorts[FieldHelper::getFieldName($sort)] = $sort->getRawValue();
+        }
+
+        return $sorts;
     }
 
     /**

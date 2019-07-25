@@ -118,7 +118,8 @@ class Response implements ResponseInterface
      */
     public function getFacets(): ?array
     {
-        return $this->facets;
+
+        return $this->getNumFound() ? $this->facets : [];
     }
 
     /**

@@ -62,41 +62,44 @@ class Pusher implements PusherInterface
                         $start = microtime(true);
                     }
 
-                    echo $counter . PHP_EOL;
+                    echo $i . ' - ' . $counter . PHP_EOL;
 
-                    if ($i < $pageSize) {
-                        $doc = $update->createDocument();
+                    $doc = $update->createDocument();
 
-                        $doc->solr_id = (string)$document->getUniqueId();
-                        $doc->id = (int)$document->getObjectId();
-                        $doc->object_type = (string)$document->getObjectType();
+                    $doc->solr_id = (string)$document->getUniqueId();
+                    $doc->id = (int)$document->getObjectId();
+                    $doc->object_type = (string)$document->getObjectType();
 
-                        /** @var Document\Field $field */
-                        foreach ($document->getData() as $field) {
-                            if (!$field->getValue()) {
-                                continue;
-                            }
-
-                            $solrFieldName = FieldHelper::getFieldName($field);
-
-                            $solrFieldValue = $field->getValue();
-                            if (isset(FieldHelper::$mapFieldType[$field->getType()]) && FieldHelper::$mapFieldType[$field->getType()] === FieldHelper::SOLR_FIELD_TYPE_DATETIME) {
-                                $solrFieldValue = date(FieldHelper::SOLR_DATETIME_FORMAT, strtotime($field->getValue()));
-                            }
-
-                            $doc->{$solrFieldName} = $solrFieldValue;
+                    /** @var Document\Field $field */
+                    foreach ($document->getData() as $field) {
+                        if (!$field->getValue()) {
+                            continue;
                         }
 
+                        $solrFieldName = FieldHelper::getFieldName($field);
+
+                        $solrFieldValue = $field->getValue();
+                        if (isset(FieldHelper::$mapFieldType[$field->getType()]) && FieldHelper::$mapFieldType[$field->getType()] === FieldHelper::SOLR_FIELD_TYPE_DATETIME) {
+                            $solrFieldValue = date(FieldHelper::SOLR_DATETIME_FORMAT, strtotime($field->getValue()));
+                        }
+
+                        $doc->{$solrFieldName} = $solrFieldValue;
+                    }
+
+                    if ($doc->id) {
                         $i++;
                         $update->addDocument($doc);
-                    } else {
+                    }
+
+                    if ($i >= $pageSize) {
                         $update->addCommit();
                         $result = $this->client->update($update);
                         $i = 0;
                         $update = $this->client->createUpdate();
                     }
+
                     if (++$counter % 100 === 0) {
-                        echo(round(microtime(true) - $start, 4)) . 's | ' . $counter . PHP_EOL;
+                        echo (round(microtime(true) - $start, 4)) . 's | ' . $counter . PHP_EOL;
                     }
                 }
                 if ($i > 0) {

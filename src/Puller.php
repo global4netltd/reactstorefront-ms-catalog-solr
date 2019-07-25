@@ -114,7 +114,7 @@ class Puller implements PullerInterface
         }
 
         // sort the results by price ascending
-        foreach ($query->getSort() as $sort) {
+        foreach ($query->getSorts() as $sort) {
             $solariumQuery->addSort(FieldHelper::getFieldName($sort), $sort->getValue() ?: 'DESC');
         }
 

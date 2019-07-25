@@ -203,7 +203,6 @@
             <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1"
                     catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"
                     splitOnNumerics="0"/>
-            <filter class="solr.LowerCaseFilterFactory"/>
         </analyzer>
         <analyzer type="query">
             <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>

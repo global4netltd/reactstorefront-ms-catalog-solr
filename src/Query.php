@@ -157,8 +157,10 @@ class Query extends AbstractQuery
      */
     protected function addFacetsToQuery()
     {
-        foreach ($this->facets as $key => $field) {
-            $this->query->getFacetSet()->createFacetField($key)->setField(FieldHelper::getFieldName($field));
+        foreach ($this->facets as $key => $facet) {
+            if ($facet->getIndexable()) {
+                $this->query->getFacetSet()->createFacetField($key)->setField(FieldHelper::getFieldName($facet));
+            }
         }
     }
 
@@ -183,8 +185,10 @@ class Query extends AbstractQuery
          * @var Field $stat
          */
         foreach ($this->stats as $key => $stat) {
-            $field = $this->fieldHelper::getFieldName($stat);
-            $stats->createField($field);
+            if ($stat->getIndexable()) {
+                $field = $this->fieldHelper::getFieldName($stat);
+                $stats->createField($field);
+            }
         }
     }
 
@@ -210,7 +214,9 @@ class Query extends AbstractQuery
         $sorts = [];
         /** @var Field $sort */
         foreach ($this->getSorts() as $sort) {
-            $sorts[FieldHelper::getFieldName($sort)] = $sort->getRawValue();
+            if ($sort->getIndexable()) {
+                $sorts[FieldHelper::getFieldName($sort)] = $sort->getRawValue();
+            }
         }
 
         return $sorts;

@@ -118,7 +118,8 @@ class Response implements ResponseInterface
      */
     public function getFacets(): ?array
     {
-        return $this->facets;
+
+        return $this->getNumFound() ? $this->facets : [];
     }
 
     /**
@@ -138,19 +139,20 @@ class Response implements ResponseInterface
     public function getStats(): ?array
     {
         $stats = [];
-        /** @var Result $stat */
-        foreach ($this->stats as $stat) {
-            $stats[$stat->getName()] = [
-                'max'     => $stat->getMax(),
-                'min'     => $stat->getMin(),
-                'missing' => $stat->getMissing(),
-                'count'   => $stat->getCount(),
-                'mean'    => $stat->getMean(),
-                'sum'     => $stat->getSum(),
-            ];
-            /** @todo ! all stats */
+        if ($this->getNumFound()) { // @todo think about better place for getNumFound check
+            /** @var Result $stat */
+            foreach ($this->stats as $stat) {
+                $stats[$stat->getName()] = [
+                    'max'     => $stat->getMax(),
+                    'min'     => $stat->getMin(),
+                    'missing' => $stat->getMissing(),
+                    'count'   => $stat->getCount(),
+                    'mean'    => $stat->getMean(),
+                    'sum'     => $stat->getSum(),
+                ];
+                /** @todo ! all stats */
+            }
         }
-
         return $stats;
     }
 

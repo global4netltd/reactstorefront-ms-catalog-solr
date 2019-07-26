@@ -184,10 +184,11 @@ class Client implements ClientInterface
 
     /**
      * @param $query
+     * @param bool $rawFieldName
      *
      * @return ResponseInterface
      */
-    public function query($query): ResponseInterface
+    public function query($query, bool $rawFieldName): ResponseInterface
     {
         if (!($query instanceof SolariumQueryInterface)) {
             throw new UnexpectedValueException(
@@ -229,14 +230,13 @@ class Client implements ClientInterface
 
         /** TODO move it to another function */
         $newDocumentColl = [];
-
         /**
          * @todo too much response data vs requested (fields like created_at, display mode etc)
          */
         foreach ($response->getDocumentsCollection() as $docKey => $document) {
             $newDocument = new Document();
             foreach ($document as $fieldName => $fieldValue) {
-                $field = FieldHelper::createFieldByResponseField($fieldName, $fieldValue);
+                $field = FieldHelper::createFieldByResponseField($fieldName, $fieldValue, $rawFieldName);
                 $newDocument->setField($field);
             }
             $document = $newDocument;

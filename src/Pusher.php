@@ -72,12 +72,7 @@ class Pusher implements PusherInterface
 
                     /** @var Document\Field $field */
                     foreach ($document->getData() as $field) {
-                        if (!$field->getValue()) {
-                            continue;
-                        }
-
                         $solrFieldName = FieldHelper::getFieldName($field);
-
                         $solrFieldValue = $field->getValue();
                         if (isset(FieldHelper::$mapFieldType[$field->getType()]) && FieldHelper::$mapFieldType[$field->getType()] === FieldHelper::SOLR_FIELD_TYPE_DATETIME) {
                             $solrFieldValue = date(FieldHelper::SOLR_DATETIME_FORMAT, strtotime($field->getValue()));

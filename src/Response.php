@@ -153,6 +153,7 @@ class Response implements ResponseInterface
                 /** @todo ! all stats */
             }
         }
+
         return $stats;
     }
 

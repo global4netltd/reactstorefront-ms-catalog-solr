@@ -234,13 +234,15 @@ class Query extends AbstractQuery
     }
 
     /**
+     * @param bool $rawFieldName
+     *
      * @return ResponseInterface
      * @throws Exception
      */
-    public function getResponse()
+    public function getResponse(bool $rawFieldName = false)
     {
         /** @var MsCatalogSolrClient $client */
         $client = $this->getClient();
-        return $client->query($this->buildQuery());
+        return $client->query($this->buildQuery(), $rawFieldName);
     }
 }

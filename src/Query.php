@@ -5,6 +5,7 @@ namespace G4NReact\MsCatalogSolr;
 use Exception;
 use G4NReact\MsCatalog\AbstractQuery;
 use G4NReact\MsCatalog\Document\Field;
+use G4NReact\MsCatalog\Document\FieldValue;
 use G4NReact\MsCatalog\ResponseInterface;
 use G4NReact\MsCatalogMagento2\Model\Attribute\SearchTerms;
 use G4NReact\MsCatalogSolr\Client\Client as MsCatalogSolrClient;
@@ -126,14 +127,23 @@ class Query extends AbstractQuery
         $queryFilter = '';
         $value = $field->getValue();
 
-        if (is_array($value) && $value) {
+        if ($field->getRawValue() instanceof FieldValue && $field->getRawValue()->getFromValue() && $field->getRawValue()->getToValue()) {
+            /** @var FieldValue $fieldValue */
+            $fieldValue = $field->getRawValue();
+
+            $queryFilter = '[' . $fieldValue->getFromValue() . ' TO ' . $fieldValue->getToValue() . ']';
+        } elseif
+        (is_array($value) && $value) {
             $queryFilter = '("' . implode('" OR "', $value) . '")';
-        } elseif (stripos($value, ',') !== false) {
+        } elseif
+        (stripos($value, ',') !== false) {
             $multi = explode(',', $value);
             $queryFilter = '(' . implode(' OR ', $multi) . ')';
-        } elseif (stripos($value, '\-') !== false) {
+        } elseif
+        (stripos($value, '\-') !== false) {
             $queryFilter = $value;
-        } elseif ((($field->getType() == Field::FIELD_TYPE_FLOAT
+        } elseif
+        ((($field->getType() == Field::FIELD_TYPE_FLOAT
                 || $field->getType() == Field::FIELD_TYPE_INT))
             && stripos($value, '-') !== false) {
             /**
@@ -143,7 +153,8 @@ class Query extends AbstractQuery
             if (isset($ranges[0]) && isset($ranges[1])) {
                 $queryFilter = '[' . $ranges[0] . ' TO ' . $ranges[1] . ']';
             }
-        } elseif ($field->getType() == Field::FIELD_TYPE_STRING || $field->getType() == Field::FIELD_TYPE_TEXT) {
+        } elseif
+        ($field->getType() == Field::FIELD_TYPE_STRING || $field->getType() == Field::FIELD_TYPE_TEXT) {
             $queryFilter = "\"$value\""; // match exact value
         } else {
             $queryFilter = $value;

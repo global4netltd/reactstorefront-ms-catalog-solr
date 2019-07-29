@@ -39,6 +39,8 @@ class Pusher implements PusherInterface
     {
         $this->config = $config;
         $this->client = $client;
+        $endpoint = $client->getEndpoint();
+        $endpoint->setTimeout(10);
     }
 
     /**

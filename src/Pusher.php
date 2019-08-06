@@ -60,14 +60,16 @@ class Pusher implements PusherInterface
                 $counter = 0;
                 /** @var Document $document */
                 foreach ($documents as $document) {
-                    if (!$document->getUniqueId()) {
-                        continue;
-                    }
                     if (($counter === 0) || ($counter % 100 === 0)) {
                         $start = microtime(true);
                     }
 
                     echo $i . ' - ' . $counter . PHP_EOL;
+
+                    if (!$document->getUniqueId()) {
+                        echo 'continue!';
+                        continue;
+                    }
 
                     $doc = $update->createDocument();
 

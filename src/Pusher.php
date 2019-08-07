@@ -8,9 +8,9 @@ use G4NReact\MsCatalog\Document;
 use G4NReact\MsCatalog\PullerInterface;
 use G4NReact\MsCatalog\PusherInterface;
 use G4NReact\MsCatalog\ResponseInterface;
+use G4NReact\MsCatalogSolr\Client\Client as MsCatalogSolrClient;
 use G4NReact\MsCatalogSolr\Config as SolrConfig;
 use Iterator;
-use Solarium\Client;
 use Solarium\Client as SolariumClient;
 
 /**
@@ -25,7 +25,7 @@ class Pusher implements PusherInterface
     private $config;
 
     /**
-     * @var Client
+     * @var SolariumClient
      */
     private $client;
 
@@ -40,7 +40,8 @@ class Pusher implements PusherInterface
         $this->config = $config;
         $this->client = $client;
         $endpoint = $client->getEndpoint();
-        $endpoint->setTimeout(10);
+        $timeout = $config->getPusherTimeout() ?: MsCatalogSolrClient::DEFAULT_PUSHER_TIMEOUT;
+        $endpoint->setTimeout($timeout);
     }
 
     /**

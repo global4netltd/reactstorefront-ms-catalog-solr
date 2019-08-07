@@ -30,6 +30,16 @@ use Solarium\QueryType\Select\Query\Query;
 class Client implements ClientInterface
 {
     /**
+     * @var int
+     */
+    const DEFAULT_PUSHER_TIMEOUT = 10;
+
+    /**
+     * @var int
+     */
+    const DEFAULT_PULLER_TIMEOUT = 5;
+
+    /**
      * @var SolariumClient
      */
     protected $client;
@@ -57,12 +67,40 @@ class Client implements ClientInterface
     }
 
     /**
+     * @param int $timeout
+     */
+    public function setTimeout(int $timeout)
+    {
+        $this->client->getEndpoint()->setTimeout($timeout);
+    }
+
+    /**
+     * Set push operation timeout
+     */
+    public function setPusherTimeout()
+    {
+        $timeout = $this->config->getPusherTimeout() ?: self::DEFAULT_PUSHER_TIMEOUT;
+        $this->setTimeout($timeout);
+    }
+
+    /**
+     * Set pull operation timeout
+     */
+    public function setPullerTimeout()
+    {
+        $timeout = $this->config->getPullerTimeout() ?: self::DEFAULT_PULLER_TIMEOUT;
+        $this->setTimeout($timeout);
+    }
+
+    /**
      * @param array $fields
      *
      * @return ResponseInterface
      */
     public function add(array $fields): ResponseInterface
     {
+        $this->setPusherTimeout();
+
         $update = $this->client->createUpdate();
         $document = $update->createDocument($fields);
         $update
@@ -85,6 +123,8 @@ class Client implements ClientInterface
      */
     public function deleteById($id): ResponseInterface
     {
+        $this->setPusherTimeout();
+
         $update = $this->client->createUpdate();
         $update
             ->addDeleteById($id)
@@ -106,6 +146,8 @@ class Client implements ClientInterface
      */
     public function deleteByIds(array $ids): ResponseInterface
     {
+        $this->setPusherTimeout();
+
         $update = $this->client->createUpdate();
 
         $update
@@ -128,6 +170,8 @@ class Client implements ClientInterface
      */
     public function deleteByFields(array $fields): ResponseInterface
     {
+        $this->setPusherTimeout();
+
         $update = $this->client->createUpdate();
 
         if ($deleteQuery = $this->prepareDeleteQueryByFields($fields)) {
@@ -149,7 +193,7 @@ class Client implements ClientInterface
      *
      * @return string
      */
-    protected function prepareDeleteQueryByFields(array $fields)
+    protected function prepareDeleteQueryByFields(array $fields): string
     {
         $query = '';
         /** @var Field $field */
@@ -168,6 +212,8 @@ class Client implements ClientInterface
      */
     public function get($options): ResponseInterface
     {
+        $this->setPullerTimeout();
+
         $query = $this->client->createSelect($options);
 
         $result = $this->client->execute($query);
@@ -195,6 +241,8 @@ class Client implements ClientInterface
                 'query must implement Query Interface'
             );
         }
+
+        $this->setPullerTimeout();
 
         $debugInfo = $this->getDebugInfo($query);
         $response = new Response();

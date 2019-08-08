@@ -169,8 +169,14 @@ class Query extends AbstractQuery
     protected function addFacetsToQuery()
     {
         foreach ($this->facets as $key => $facet) {
+            /** @var Field $facet */
             if ($facet->getIndexable()) {
-                $this->query->getFacetSet()->createFacetField($key)->setField(FieldHelper::getFieldName($facet));
+                $this->query->getFacetSet()
+                    ->createFacetField($key)
+                    ->setMinCount($facet->getMinCount() ?: 1)
+                    ->setField(FieldHelper::getFieldName($facet))
+
+                ;
             }
         }
     }

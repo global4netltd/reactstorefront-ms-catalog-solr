@@ -28,6 +28,25 @@ class Query extends AbstractQuery
     protected $fieldHelper;
 
     /**
+     * @var []
+     */
+    protected $facetExcludedFields = [];
+
+    /**
+     * @param bool $rawFieldName
+     *
+     * @return ResponseInterface
+     * @throws Exception
+     */
+    public function getResponse(bool $rawFieldName = false)
+    {
+        /** @var MsCatalogSolrClient $client */
+        $client = $this->getClient();
+
+        return $client->query($this->buildQuery(), $rawFieldName);
+    }
+
+    /**
      * @return mixed|SolariumSelectQuery
      * @throws Exception
      */
@@ -74,16 +93,48 @@ class Query extends AbstractQuery
     }
 
     /**
+     * @return array
+     */
+    protected function prepareFields(): array
+    {
+        $fields = [];
+        /** @var Field $field */
+        foreach ($this->fields as $field) {
+            $fields[] = FieldHelper::getFieldName($field);
+        }
+
+        return $fields;
+    }
+
+    /**
+     * @return array
+     */
+    protected function prepareSorts(): array
+    {
+        $sorts = [];
+        /** @var Field $sort */
+        foreach ($this->getSorts() as $sort) {
+            if ($sort->getIndexable()) {
+                $sorts[FieldHelper::getFieldName($sort)] = $sort->getRawValue();
+            }
+        }
+
+        return $sorts;
+    }
+
+    /**
      * Add filters to query
      */
     protected function addFiltersToQuery()
     {
         $filterQueries = $this->prepareFilterQuries();
 
-        foreach ($filterQueries as $key => $filterQuery) {
-            $this->query
-                ->createFilterQuery($key)
-                ->setQuery($filterQuery);
+        foreach ($filterQueries as $key => $filterQueryData) {
+            $filterQuery = $this->query->createFilterQuery($key);
+            if (in_array($key, $this->facetExcludedFields) || $key == 'category_id') {
+                $filterQuery->setTags(['exclude']);
+            }
+            $filterQuery->setQuery($filterQueryData);
         }
     }
 
@@ -97,6 +148,9 @@ class Query extends AbstractQuery
         foreach ($filters as $key => $filter) {
             if (!isset($filter[self::FIELD]) || !isset($filter[self::NEGATIVE]) || !isset($filter[self::OPERATOR])) {
                 continue;
+            }
+            if ($filter[self::FIELD]->getExcluded()) {
+                $this->facetExcludedFields[] = $key;
             }
             if ($filter[self::OPERATOR] == self::OR_OPERATOR && isset($filterQuery) && isset($filterQueryKey)) {
                 $filterQuery = $filterQuery . ' ' . self::OR_OPERATOR . ' ' . $this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]);
@@ -132,18 +186,14 @@ class Query extends AbstractQuery
             $fieldValue = $field->getRawValue();
 
             $queryFilter = '[' . $fieldValue->getFromValue() . ' TO ' . $fieldValue->getToValue() . ']';
-        } elseif
-        (is_array($value) && $value) {
+        } elseif (is_array($value) && $value) {
             $queryFilter = '("' . implode('" OR "', $value) . '")';
-        } elseif
-        (stripos($value, ',') !== false) {
+        } elseif (stripos($value, ',') !== false) {
             $multi = explode(',', $value);
             $queryFilter = '(' . implode(' OR ', $multi) . ')';
-        } elseif
-        (stripos($value, '\-') !== false) {
+        } elseif (stripos($value, '\-') !== false) {
             $queryFilter = $value;
-        } elseif
-        ((($field->getType() == Field::FIELD_TYPE_FLOAT
+        } elseif ((($field->getType() == Field::FIELD_TYPE_FLOAT
                 || $field->getType() == Field::FIELD_TYPE_INT))
             && stripos($value, '-') !== false) {
             /**
@@ -153,8 +203,7 @@ class Query extends AbstractQuery
             if (isset($ranges[0]) && isset($ranges[1])) {
                 $queryFilter = '[' . $ranges[0] . ' TO ' . $ranges[1] . ']';
             }
-        } elseif
-        ($field->getType() == Field::FIELD_TYPE_STRING || $field->getType() == Field::FIELD_TYPE_TEXT) {
+        } elseif ($field->getType() == Field::FIELD_TYPE_STRING || $field->getType() == Field::FIELD_TYPE_TEXT) {
             $queryFilter = "\"$value\""; // match exact value
         } else {
             $queryFilter = $value;
@@ -171,24 +220,15 @@ class Query extends AbstractQuery
         foreach ($this->facets as $key => $facet) {
             /** @var Field $facet */
             if ($facet->getIndexable()) {
-                $this->query->getFacetSet()
-                    ->createFacetField($key)
-                    ->setMinCount($facet->getMinCount() ?: 1)
-                    ->setField(FieldHelper::getFieldName($facet))
-
-                ;
+                $facetField = $this->query->getFacetSet()
+                    ->createFacetField($key);
+                if (in_array($key, $this->facetExcludedFields)) {
+                    $facetField->setExcludes(['exclude']);
+                }
+                $facetField->setMinCount($facet->getMinCount() ?: 1)
+                    ->setField(FieldHelper::getFieldName($facet));
             }
         }
-    }
-
-    /**
-     * @param Field $field
-     *
-     * @return string
-     */
-    protected function prepareQueryFacet($field)
-    {
-        return (string)$this->fieldHelper::getFieldName($field) . ': ' . $field->getValue();
     }
 
     /**
@@ -210,45 +250,12 @@ class Query extends AbstractQuery
     }
 
     /**
-     * @return array
-     */
-    protected function prepareFields(): array
-    {
-        $fields = [];
-        /** @var Field $field */
-        foreach ($this->fields as $field) {
-            $fields[] = FieldHelper::getFieldName($field);
-        }
-
-        return $fields;
-    }
-
-    /**
-     * @return array
-     */
-    protected function prepareSorts(): array
-    {
-        $sorts = [];
-        /** @var Field $sort */
-        foreach ($this->getSorts() as $sort) {
-            if ($sort->getIndexable()) {
-                $sorts[FieldHelper::getFieldName($sort)] = $sort->getRawValue();
-            }
-        }
-
-        return $sorts;
-    }
-
-    /**
-     * @param bool $rawFieldName
+     * @param Field $field
      *
-     * @return ResponseInterface
-     * @throws Exception
+     * @return string
      */
-    public function getResponse(bool $rawFieldName = false)
+    protected function prepareQueryFacet($field)
     {
-        /** @var MsCatalogSolrClient $client */
-        $client = $this->getClient();
-        return $client->query($this->buildQuery(), $rawFieldName);
+        return (string)$this->fieldHelper::getFieldName($field) . ': ' . $field->getValue();
     }
 }

@@ -131,7 +131,7 @@ class Query extends AbstractQuery
 
         foreach ($filterQueries as $key => $filterQueryData) {
             $filterQuery = $this->query->createFilterQuery($key);
-            if (in_array($key, $this->facetExcludedFields) || $key == 'category_id') {
+            if (in_array($key, $this->facetExcludedFields)) {
                 $filterQuery->setTags(['exclude']);
             }
             $filterQuery->setQuery($filterQueryData);

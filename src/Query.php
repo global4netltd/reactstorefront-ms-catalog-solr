@@ -144,24 +144,26 @@ class Query extends AbstractQuery
     protected function prepareFilterQuries(): array
     {
         $filterQueries = [];
-        $filters = $this->filters;
-        foreach ($filters as $key => $filter) {
-            if (!isset($filter[self::FIELD]) || !isset($filter[self::NEGATIVE]) || !isset($filter[self::OPERATOR])) {
-                continue;
-            }
-            if ($filter[self::FIELD]->getExcluded()) {
-                $this->facetExcludedFields[] = $key;
-            }
-            if ($filter[self::OPERATOR] == self::OR_OPERATOR && isset($filterQuery) && isset($filterQueryKey)) {
-                $filterQuery = $filterQuery . ' ' . self::OR_OPERATOR . ' ' . $this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]);
-                if (isset($filterQueries[$filterQueryKey])) {
-                    unset($filterQueries[$filterQueryKey]);
+        $filters = $this->getFilters();
+        foreach ($filters as $key => $filterArray) {
+            foreach ($filterArray as $idx => $filter) {
+                if (!isset($filter[self::FIELD]) || !isset($filter[self::NEGATIVE]) || !isset($filter[self::OPERATOR])) {
+                    continue;
                 }
-                $filterQueries[$filterQueryKey . ' ' . self::OR_OPERATOR . ' ' . $key] = $filterQuery;
-            } else {
-                $filterQuery = $this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]);
-                $filterQueryKey = $key;
-                $filterQueries[$key] = $filterQuery;
+                if ($filter[self::FIELD]->getExcluded()) {
+                    $this->facetExcludedFields[] = $key . $idx;
+                }
+                if ($filter[self::OPERATOR] == self::OR_OPERATOR && isset($filterQuery) && isset($filterQueryKey)) {
+                    $filterQuery = $filterQuery . ' ' . self::OR_OPERATOR . ' ' . $this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]);
+                    if (isset($filterQueries[$filterQueryKey])) {
+                        unset($filterQueries[$filterQueryKey]);
+                    }
+                    $filterQueries[$filterQueryKey . ' ' . self::OR_OPERATOR . ' ' . $key . $idx] = $filterQuery;
+                } else {
+                    $filterQuery = $this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]);
+                    $filterQueryKey = $key . $idx;
+                    $filterQueries[$key . $idx] = $filterQuery;
+                }
             }
         }
 

@@ -227,7 +227,9 @@ class Query extends AbstractQuery
                 if (in_array($key, $this->facetExcludedFields)) {
                     $facetField->setExcludes(['exclude']);
                 }
-                $facetField->setMinCount($facet->getMinCount() ?: 1)
+                $facetField
+                    ->setMinCount($facet->getMinCount() ?: 1)
+                    ->setLimit($facet->getLimit() ?: 100)
                     ->setField(FieldHelper::getFieldName($facet));
             }
         }

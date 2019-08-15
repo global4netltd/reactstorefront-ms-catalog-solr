@@ -55,6 +55,11 @@ class Client implements ClientInterface
     protected $solrConfig;
 
     /**
+     * @var
+     */
+    protected $solariumHelper;
+
+    /**
      * Client constructor.
      *
      * @param $config
@@ -199,7 +204,7 @@ class Client implements ClientInterface
         /** @var Field $field */
         foreach ($fields as $field) {
             !empty($query) ? $query .= ' AND ' : $query .= '';
-            $query .= FieldHelper::getFieldName($field) . ':' . $field->getValue();
+            $query .= FieldHelper::getFieldName($field) . ':' . $this->getSolariumHelper()->escapePhrase($field->getValue());
         }
 
         return (string)$query;
@@ -379,5 +384,17 @@ class Client implements ClientInterface
         ];
 
         return $debugInfo;
+    }
+
+    /**
+     * @return \Solarium\Core\Query\Helper
+     */
+    public function getSolariumHelper()
+    {
+        if (!$this->solariumHelper) {
+            $this->solariumHelper = $this->client->createSelect()->getHelper();
+        }
+
+        return $this->solariumHelper;
     }
 }

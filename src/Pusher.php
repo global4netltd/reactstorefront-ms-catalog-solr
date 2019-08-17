@@ -68,7 +68,6 @@ class Pusher implements PusherInterface
                     echo $i . ' - ' . $counter . PHP_EOL;
 
                     if (!$document->getUniqueId()) {
-                        echo 'continue!';
                         continue;
                     }
 

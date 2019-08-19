@@ -151,7 +151,7 @@ class Query extends AbstractQuery
                     continue;
                 }
                 if ($filter[self::FIELD]->getExcluded()) {
-                    $this->facetExcludedFields[] = $key . $idx;
+                    $this->facetExcludedFields[] = $key;
                 }
                 if ($filter[self::OPERATOR] == self::OR_OPERATOR && isset($filterQuery) && isset($filterQueryKey)) {
                     $filterQuery = $filterQuery . ' ' . self::OR_OPERATOR . ' ' . $this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]);

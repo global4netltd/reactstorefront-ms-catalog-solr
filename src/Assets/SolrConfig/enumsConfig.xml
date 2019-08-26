@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<enumsConfig>
+    <enum name="objectType">
+        <value>product</value>
+        <value>category</value>
+        <value>cms_page</value>
+        <value>cms_block</value>
+        <value>search_term</value>
+    </enum>
+</enumsConfig>

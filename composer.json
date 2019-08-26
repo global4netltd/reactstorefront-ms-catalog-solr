@@ -1,0 +1,21 @@
+{
+  "name": "g4n-react/ms-catalog-solr",
+  "description": "Puller and pusher for Solr",
+  "version": "0.2.0",
+  "license": "MIT",
+  "keywords": ["solr"],
+  "authors": [
+    {
+      "name": "G4N React Storefront",
+      "email": "biuro@global4net.com"
+    }
+  ],
+  "require": {
+    "solarium/solarium": "^5.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "G4NReact\\MsCatalogSolr\\": "src/"
+    }
+  }
+}

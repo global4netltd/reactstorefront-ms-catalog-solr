@@ -1,7 +1,7 @@
 {
   "name": "g4n-react/ms-catalog-solr",
   "description": "Puller and pusher for Solr",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "license": "MIT",
   "keywords": ["solr"],
   "authors": [

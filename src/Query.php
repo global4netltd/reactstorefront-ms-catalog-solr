@@ -83,7 +83,10 @@ class Query extends AbstractQuery
             $queryArray = [];
             $limit = 10;
             for ($i = 1; $i <= $limit; $i++) {
-                $queryArray[] = SearchTerms::SEARCH_TERMS_FIELD_NAME . '_' . $i . '_' . FieldHelper::$mapFieldType[Field::FIELD_TYPE_TEXT_SEARCH] . ':"' . $queryString . '"~100^' . (int)($limit - $i);
+                $queryArray[] = SearchTerms::SEARCH_TERMS_FIELD_NAME
+                    . '_' . $i
+                    . '_' . FieldHelper::$mapFieldType[Field::FIELD_TYPE_TEXT_SEARCH]
+                    . ':"' . $queryString . '"~100^' . (int)($limit - $i);
             }
 
             return implode(' OR ', $queryArray);

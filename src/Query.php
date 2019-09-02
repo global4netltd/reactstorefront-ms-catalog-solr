@@ -138,7 +138,7 @@ class Query extends AbstractQuery
             $filterQuery = $this->query->createFilterQuery($key);
             $filterKeyInfo = explode(self::FIELD_IDX_DELIMETER, $key);
             if (in_array($filterKeyInfo[0], $this->facetExcludedFields)) {
-                $filterQuery->setTags(['exclude']);
+                $filterQuery->setTags(['exclude' . $filterKeyInfo[0]]);
             }
             $filterQuery->setQuery($filterQueryData);
         }
@@ -231,7 +231,7 @@ class Query extends AbstractQuery
                 $facetField = $this->query->getFacetSet()
                     ->createFacetField($key);
                 if (in_array($key, $this->facetExcludedFields)) {
-                    $facetField->setExcludes(['exclude']);
+                    $facetField->setExcludes(['exclude' . $key]);
                 }
                 $facetField
                     ->setMinCount($facet->getMinCount() ?: 1)

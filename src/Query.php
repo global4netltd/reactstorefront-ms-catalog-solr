@@ -17,6 +17,8 @@ use Solarium\QueryType\Select\Query\Query as SolariumSelectQuery;
  */
 class Query extends AbstractQuery
 {
+    const FIELD_IDX_DELIMETER = '__';
+    
     /**
      * @var SolariumSelectQuery
      */
@@ -89,7 +91,7 @@ class Query extends AbstractQuery
                     . ':"' . $queryString . '"~100^' . (int)($limit - $i);
             }
 
-            return implode(' OR ', $queryArray);
+            return ($this->getQueryPrepend() ?? '') . implode(' OR ', $queryArray);
         }
 
         return '*:*';
@@ -134,7 +136,8 @@ class Query extends AbstractQuery
 
         foreach ($filterQueries as $key => $filterQueryData) {
             $filterQuery = $this->query->createFilterQuery($key);
-            if (in_array($key, $this->facetExcludedFields)) {
+            $filterKeyInfo = explode(self::FIELD_IDX_DELIMETER, $key);
+            if (in_array($filterKeyInfo[0], $this->facetExcludedFields)) {
                 $filterQuery->setTags(['exclude']);
             }
             $filterQuery->setQuery($filterQueryData);
@@ -161,11 +164,11 @@ class Query extends AbstractQuery
                     if (isset($filterQueries[$filterQueryKey])) {
                         unset($filterQueries[$filterQueryKey]);
                     }
-                    $filterQueries[$filterQueryKey . ' ' . self::OR_OPERATOR . ' ' . $key . $idx] = $filterQuery;
+                    $filterQueries[$filterQueryKey . ' ' . self::OR_OPERATOR . ' ' . $key . self::FIELD_IDX_DELIMETER . $idx] = $filterQuery;
                 } else {
                     $filterQuery = $this->prepareFilterQuery($filter[self::FIELD], $filter[self::NEGATIVE]);
-                    $filterQueryKey = $key . $idx;
-                    $filterQueries[$key . $idx] = $filterQuery;
+                    $filterQueryKey = $key . self::FIELD_IDX_DELIMETER . $idx;
+                    $filterQueries[$key . self::FIELD_IDX_DELIMETER . $idx] = $filterQuery;
                 }
             }
         }

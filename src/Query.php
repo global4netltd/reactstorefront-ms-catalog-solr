@@ -119,9 +119,9 @@ class Query extends AbstractQuery
         $sorts = [];
         /** @var Field $sort */
         foreach ($this->getSorts() as $sort) {
-//            if ($sort->getIndexable()) { @ToDo: Temporarily - 'score' problem
+            if ($sort->getIndexable()) {
                 $sorts[FieldHelper::getFieldName($sort)] = $sort->getRawValue();
-//            }
+            }
         }
 
         return $sorts;

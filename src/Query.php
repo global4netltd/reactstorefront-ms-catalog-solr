@@ -82,19 +82,47 @@ class Query extends AbstractQuery
         $queryString = $this->getQueryText();
 
         if ($queryString) {
+            $queries = $this->getQueriesByQueryText($queryString);
             $queryArray = [];
-            $limit = 10;
+            $limit = 5;
             for ($i = 1; $i <= $limit; $i++) {
-                $queryArray[] = SearchTerms::SEARCH_TERMS_FIELD_NAME
-                    . '_' . $i
-                    . '_' . FieldHelper::$mapFieldType[Field::FIELD_TYPE_TEXT_SEARCH]
-                    . ':"' . $queryString . '"~100^' . (int)($limit - $i);
+                foreach ($queries as $query) {
+                    $queryArray[] = SearchTerms::SEARCH_TERMS_FIELD_NAME
+                        . '_' . $i
+                        . '_' . FieldHelper::$mapFieldType[Field::FIELD_TYPE_TEXT_SEARCH]
+                        . ':"' . $query . '"~100^' . (int)($limit - $i);
+                }
             }
 
             return ($this->getQueryPrepend() ?? '') . implode(' OR ', $queryArray);
         }
 
         return '*:*';
+    }
+
+    /**
+     * For advanced search
+     * @param $queryText
+     * @param array $fields
+     * @return array
+     */
+    public function getQueriesByQueryText($queryText)
+    {
+        $queriesArray = [$queryText];
+
+        $clearValue = (strpos($queryText, ' ') !== false) ? str_replace(' ', '', $queryText) : false;
+
+        if ($clearValue) {
+            $queriesArray[] = $clearValue;
+        }
+
+        $regexText = false;
+        if (preg_match_all('/(.* . )(.*)/', $queryText, $matches) && (count($matches) == 3)) {
+            $regexText = str_replace(' ', '', $matches[1][0]) . ' ' . $matches[2][0];
+            $queriesArray[] = $regexText;
+        }
+
+        return $queriesArray;
     }
 
     /**

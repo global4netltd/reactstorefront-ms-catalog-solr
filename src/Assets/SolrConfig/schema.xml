@@ -197,12 +197,12 @@
         <analyzer type="index">
             <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
             <tokenizer class="solr.StandardTokenizerFactory"/>
-            <filter class="solr.ShingleFilterFactory" minShingleSize="2" maxShingleSize="3"
+            <filter class="solr.ShingleFilterFactory" minShingleSize="2" maxShingleSize="4"
                     outputUnigrams="true" outputUnigramsIfNoShingles="false" tokenSeparator=""/>
-            <filter class="solr.NGramFilterFactory" maxGramSize="15" minGramSize="2"/>
+            <filter class="solr.NGramFilterFactory" maxGramSize="15" minGramSize="1"/>
             <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1"
-                    catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"
-                    splitOnNumerics="0"/>
+                    catenateWords="4" catenateNumbers="1" catenateAll="4" splitOnCaseChange="1"
+                    splitOnNumerics="0" preserveOriginal="1"/>
             <filter class="solr.LowerCaseFilterFactory"/>
         </analyzer>
         <analyzer type="query">
@@ -210,8 +210,8 @@
             <tokenizer class="solr.StandardTokenizerFactory"/>
             <filter class="solr.LowerCaseFilterFactory"/>
             <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1"
-                    catenateWords="1" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"
-                    splitOnNumerics="0"/>
+                    catenateWords="4" catenateNumbers="1" catenateAll="4" splitOnCaseChange="1"
+                    splitOnNumerics="0" preserveOriginal="1"/>
         </analyzer>
     </fieldType>
 
@@ -270,15 +270,12 @@
         </analyzer>
     </fieldType>
 
-    <fieldType name="objectType" class="solr.EnumFieldType" docValues="true" enumsConfig="enumsConfig.xml"
-               enumName="objectType"/>
-
     <field name="_root_" type="string" docValues="false" indexed="true" stored="false"/>
     <field name="_text_" type="text_general" multiValued="true" indexed="true" stored="false"/>
     <field name="_version_" type="plong" docValues="true" indexed="false" stored="false"/>
     <field name="solr_id" type="string" multiValued="false" indexed="true" required="true" stored="true"/>
     <field name="id" type="pint" multiValued="false" indexed="true" required="true" stored="true"/>
-    <field name="object_type" type="objectType" multiValued="false" indexed="true" required="true" stored="true"/>
+    <field name="object_type" type="string" multiValued="false" indexed="true" required="true" stored="true"/>
 
     <dynamicField name="*_txt_en_split_tight" type="text_en_splitting_tight" indexed="true" stored="true"/>
     <dynamicField name="*_descendent_path" type="descendent_path" indexed="true" stored="true"/>

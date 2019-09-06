@@ -61,6 +61,7 @@ class Pusher implements PusherInterface
                 $counter = 0;
                 /** @var Document $document */
                 foreach ($documents as $document) {
+                    $profilerStart = microtime(true);
                     if (($counter === 0) || ($counter % 100 === 0)) {
                         $start = microtime(true);
                     }
@@ -93,21 +94,26 @@ class Pusher implements PusherInterface
                         $update->addDocument($doc);
                     }
 
-                    if ($i >= $pageSize) {
-                        $update->addCommit();
-                        $result = $this->client->update($update);
-                        $i = 0;
-                        $update = $this->client->createUpdate();
-                    }
-
                     if (++$counter % 100 === 0) {
                         echo (round(microtime(true) - $start, 4)) . 's | ' . $counter . PHP_EOL;
+                    }
+                    \G4NReact\MsCatalog\Profiler::increaseTimer('create solarium documents', (microtime(true) - $profilerStart));
+
+                    if ($i >= $pageSize) {
+                        $update->addCommit();
+                        $clientUpdateStart = microtime(true);
+                        $result = $this->client->update($update);
+                        \G4NReact\MsCatalog\Profiler::increaseTimer('send update to solarium', (microtime(true) - $clientUpdateStart));
+                        $i = 0;
+                        $update = $this->client->createUpdate();
                     }
                 }
                 if ($i > 0) {
                     $update->addCommit();
                 }
+                $start = microtime(true);
                 $result = $this->client->update($update);
+                \G4NReact\MsCatalog\Profiler::increaseTimer('send update to solarium', (microtime(true) - $start));
 
                 $response->setStatusCode($result->getResponse()->getStatusCode())
                     ->setStatusMessage($result->getResponse()->getStatusMessage());

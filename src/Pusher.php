@@ -66,7 +66,7 @@ class Pusher implements PusherInterface
                         $start = microtime(true);
                     }
 
-                    echo $i . ' - ' . $counter . PHP_EOL;
+//                    echo $i . ' - ' . $counter . PHP_EOL;
 
                     if (!$document->getUniqueId()) {
                         continue;
@@ -95,7 +95,7 @@ class Pusher implements PusherInterface
                     }
 
                     if (++$counter % 100 === 0) {
-                        echo (round(microtime(true) - $start, 4)) . 's | ' . $counter . PHP_EOL;
+//                        echo (round(microtime(true) - $start, 4)) . 's | ' . $counter . PHP_EOL;
                     }
                     \G4NReact\MsCatalog\Profiler::increaseTimer('create solarium documents', (microtime(true) - $profilerStart));
 

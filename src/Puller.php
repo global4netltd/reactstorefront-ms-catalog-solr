@@ -184,7 +184,7 @@ class Puller implements PullerInterface
         $statsCollection = [];
 
         foreach ($solariumStats as $code => $solariumStat) {
-            if (!($solariumStat instanceof Stats)) {
+            if (!($solariumStat instanceof Stats) || !$solariumStat->getCount()) {
                 continue;
             }
 

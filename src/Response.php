@@ -142,7 +142,7 @@ class Response implements ResponseInterface
         if ($this->getNumFound()) { // @todo think about better place for getNumFound check
             /** @var Result $stat */
             foreach ($this->stats as $stat) {
-                if (!($stat instanceof Result)) {
+                if (!($stat instanceof Result) || !$stat->getCount()) {
                     continue;
                 }
                 $stats[$stat->getName()] = [

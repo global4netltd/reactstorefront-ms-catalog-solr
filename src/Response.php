@@ -105,7 +105,7 @@ class Response implements ResponseInterface
      */
     public function getFirstItem(): Document
     {
-        $arrayKeys = array_keys($this->documentsCollection);
+        $arrayKeys = array_keys($this->documentsCollection ?: []);
         if (isset($arrayKeys[0])) {
             return $this->documentsCollection[$arrayKeys[0]];
         } else {

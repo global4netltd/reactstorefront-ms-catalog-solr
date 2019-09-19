@@ -221,7 +221,7 @@ class Query extends AbstractQuery
             /** @var FieldValue $fieldValue */
             $fieldValue = $field->getRawValue();
 
-            $queryFilter = '[' . (int)$fieldValue->getFromValue() . ' TO ' . (int)$fieldValue->getToValue() . ']';
+            $queryFilter = '[' . ((int)$fieldValue->getFromValue()) . ' TO ' . ((int)$fieldValue->getToValue()) . ']';
         } elseif (is_array($value) && $value) {
             $queryFilter = '("' . implode('" OR "', $value) . '")';
         } elseif (stripos($value, ',') !== false) {

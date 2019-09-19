@@ -217,7 +217,7 @@ class Query extends AbstractQuery
         $queryFilter = '';
         $value = $field->getValue();
 
-        if ($field->getRawValue() instanceof FieldValue) {
+        if ($field->getRawValue() instanceof FieldValue && $field->getRawValue()->getFromValue() !== null && $field->getRawValue()->getToValue() !== null) {
             /** @var FieldValue $fieldValue */
             $fieldValue = $field->getRawValue();
 

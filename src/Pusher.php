@@ -138,9 +138,14 @@ class Pusher implements PusherInterface
 
                 if ($documents->getIds()) {
                     $toDeleteIds = array_diff($documents->getIds(), $activeIds);
-                    if (!empty($toDeleteIds)) {
+                    $solrIds = [];
+                    foreach ($toDeleteIds as $objId) {
+                        $solrIds[] = $documents->createUniqueId($objId);
+                    }
+
+                    if (!empty($solrIds)) {
                         $update
-                            ->addDeleteByIds($toDeleteIds)
+                            ->addDeleteByIds($solrIds)
                             ->addCommit();
 
                         $this->client->update($update);

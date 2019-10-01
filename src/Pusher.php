@@ -51,6 +51,7 @@ class Pusher implements PusherInterface
      */
     public function push(PullerInterface $documents): ResponseInterface
     {
+        $activeIds = [];
         $pageSize = $this->config->getPusherPageSize();
         $response = new Response();
         if ($documents) {
@@ -96,6 +97,10 @@ class Pusher implements PusherInterface
                     if ($doc->id) {
                         $i++;
                         $update->addDocument($doc);
+
+                        if ($documents->getIds()) {
+                            $activeIds[] = $doc->id;
+                        }
                     }
 
                     if (++$counter % 100 === 0) {
@@ -115,6 +120,16 @@ class Pusher implements PusherInterface
                 if ($i > 0) {
                     $update->addCommit();
                 }
+
+                if ($documents->getIds()) {
+                    $toDeleteIds = array_diff($documents->getIds(), $activeIds);
+                    if (!empty($toDeleteIds)) {
+                        $update
+                            ->addDeleteByIds($toDeleteIds)
+                            ->addCommit();
+                    }
+                }
+
                 $start = microtime(true);
                 $result = $this->client->update($update);
                 \G4NReact\MsCatalog\Profiler::increaseTimer('send update to solarium', (microtime(true) - $start));

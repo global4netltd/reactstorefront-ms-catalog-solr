@@ -121,21 +121,31 @@ class Pusher implements PusherInterface
                     $update->addCommit();
                 }
 
-                if ($documents->getIds()) {
-                    $toDeleteIds = array_diff($documents->getIds(), $activeIds);
-                    if (!empty($toDeleteIds)) {
-                        $update
-                            ->addDeleteByIds($toDeleteIds)
-                            ->addCommit();
-                    }
-                }
-
                 $start = microtime(true);
                 $result = $this->client->update($update);
                 \G4NReact\MsCatalog\Profiler::increaseTimer('send update to solarium', (microtime(true) - $start));
 
                 $response->setStatusCode($result->getResponse()->getStatusCode())
                     ->setStatusMessage($result->getResponse()->getStatusMessage());
+            } catch (Exception $e) {
+                echo $e->getMessage();
+            }
+
+            try {
+                if (!$update) {
+                    $update = $this->client->createUpdate();
+                }
+
+                if ($documents->getIds()) {
+                    $toDeleteIds = array_diff($documents->getIds(), $activeIds);
+                    if (!empty($toDeleteIds)) {
+                        $update
+                            ->addDeleteByIds($toDeleteIds)
+                            ->addCommit();
+
+                        $this->client->update($update);
+                    }
+                }
             } catch (Exception $e) {
                 echo $e->getMessage();
             }

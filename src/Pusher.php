@@ -51,6 +51,7 @@ class Pusher implements PusherInterface
      */
     public function push(PullerInterface $documents): ResponseInterface
     {
+        $activeIds = [];
         $pageSize = $this->config->getPusherPageSize();
         $response = new Response();
         if ($documents) {
@@ -82,7 +83,11 @@ class Pusher implements PusherInterface
                     foreach ($document->getData() as $field) {
                         $solrFieldName = FieldHelper::getFieldName($field);
                         $solrFieldValue = $field->getValue();
-                        if (isset(FieldHelper::$mapFieldType[$field->getType()]) && FieldHelper::$mapFieldType[$field->getType()] === FieldHelper::SOLR_FIELD_TYPE_DATETIME) {
+                        if (
+                            isset(FieldHelper::$mapFieldType[$field->getType()]) &&
+                            FieldHelper::$mapFieldType[$field->getType()] === FieldHelper::SOLR_FIELD_TYPE_DATETIME &&
+                            $field->getValue()
+                        ) {
                             $solrFieldValue = date(FieldHelper::SOLR_DATETIME_FORMAT, strtotime($field->getValue()));
                         }
 
@@ -92,6 +97,10 @@ class Pusher implements PusherInterface
                     if ($doc->id) {
                         $i++;
                         $update->addDocument($doc);
+
+                        if ($documents->getIds()) {
+                            $activeIds[] = $doc->id;
+                        }
                     }
 
                     if (++$counter % 100 === 0) {
@@ -111,12 +120,37 @@ class Pusher implements PusherInterface
                 if ($i > 0) {
                     $update->addCommit();
                 }
+
                 $start = microtime(true);
                 $result = $this->client->update($update);
                 \G4NReact\MsCatalog\Profiler::increaseTimer('send update to solarium', (microtime(true) - $start));
 
                 $response->setStatusCode($result->getResponse()->getStatusCode())
                     ->setStatusMessage($result->getResponse()->getStatusMessage());
+            } catch (Exception $e) {
+                echo $e->getMessage();
+            }
+
+            try {
+                if (!$update) {
+                    $update = $this->client->createUpdate();
+                }
+
+                if ($documents->getIds()) {
+                    $toDeleteIds = array_diff($documents->getIds(), $activeIds);
+                    $solrIds = [];
+                    foreach ($toDeleteIds as $objId) {
+                        $solrIds[] = $documents->createUniqueId($objId);
+                    }
+
+                    if (!empty($solrIds)) {
+                        $update
+                            ->addDeleteByIds($solrIds)
+                            ->addCommit();
+
+                        $this->client->update($update);
+                    }
+                }
             } catch (Exception $e) {
                 echo $e->getMessage();
             }

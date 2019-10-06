@@ -78,6 +78,7 @@ class Pusher implements PusherInterface
                     $doc->solr_id = (string)$document->getUniqueId();
                     $doc->id = (int)$document->getObjectId();
                     $doc->object_type = (string)$document->getObjectType();
+                    $doc->solr_updated_at_i = time();
 
                     /** @var Document\Field $field */
                     foreach ($document->getData() as $field) {

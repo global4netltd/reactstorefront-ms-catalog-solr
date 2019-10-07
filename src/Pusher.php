@@ -131,28 +131,30 @@ class Pusher implements PusherInterface
                 echo $e->getMessage();
             }
 
-            try {
-                if (!$update) {
-                    $update = $this->client->createUpdate();
-                }
-
-                if ($documents->getIds()) {
-                    $toDeleteIds = array_diff($documents->getIds(), $activeIds);
-                    $solrIds = [];
-                    foreach ($toDeleteIds as $objId) {
-                        $solrIds[] = $documents->createUniqueId($objId);
+            if ($this->config->getPusherRemoveMissingObjects()) {
+                try {
+                    if (!$update) {
+                        $update = $this->client->createUpdate();
                     }
 
-                    if (!empty($solrIds)) {
-                        $update
-                            ->addDeleteByIds($solrIds)
-                            ->addCommit();
+                    if ($documents->getIds()) {
+                        $toDeleteIds = array_diff($documents->getIds(), $activeIds);
+                        $solrIds = [];
+                        foreach ($toDeleteIds as $objId) {
+                            $solrIds[] = $documents->createUniqueId($objId);
+                        }
 
-                        $this->client->update($update);
+                        if (!empty($solrIds)) {
+                            $update
+                                ->addDeleteByIds($solrIds)
+                                ->addCommit();
+
+                            $this->client->update($update);
+                        }
                     }
+                } catch (Exception $e) {
+                    echo $e->getMessage();
                 }
-            } catch (Exception $e) {
-                echo $e->getMessage();
             }
         }
 

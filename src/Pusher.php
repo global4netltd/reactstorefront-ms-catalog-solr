@@ -52,6 +52,7 @@ class Pusher implements PusherInterface
     public function push(PullerInterface $documents): ResponseInterface
     {
         $activeIds = [];
+        $deleteFromSolr = false;
         $pageSize = $this->config->getPusherPageSize();
         $response = new Response();
         if ($documents) {
@@ -65,6 +66,10 @@ class Pusher implements PusherInterface
                     $profilerStart = microtime(true);
                     if (($counter === 0) || ($counter % 100 === 0)) {
                         $start = microtime(true);
+                    }
+
+                    if ($documents->getIds()) {
+                        $deleteFromSolr = true;
                     }
 
 //                    echo $i . ' - ' . $counter . PHP_EOL;
@@ -138,7 +143,7 @@ class Pusher implements PusherInterface
                         $update = $this->client->createUpdate();
                     }
 
-                    if ($documents->getIds()) {
+                    if ($documents->getIds() && $deleteFromSolr) {
                         $toDeleteIds = array_diff($documents->getIds(), $activeIds);
                         $solrIds = [];
                         foreach ($toDeleteIds as $objId) {

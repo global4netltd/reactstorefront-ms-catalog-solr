@@ -59,6 +59,10 @@ class Pusher implements PusherInterface
             try {
                 $update = $this->client->createUpdate();
 
+                if ($documents->getIds()) {
+                    $this->addLog('Dokumenty odśeieżane w solrze', ['object_type' => $documents->getType(), 'ids' => $documents->getIds()]);
+                }
+
                 $i = 0;
                 $counter = 0;
                 /** @var Document $document */
@@ -153,7 +157,7 @@ class Pusher implements PusherInterface
                         }
 
                         if (!empty($solrIds)) {
-                            $this->addLog('Dokumenty usuwane z solra', ['solr_ids' => $solrIds]);
+                            $this->addLog('Dokumenty usuwane z solra', ['object_type' => $documents->getType(), 'solr_ids' => $solrIds]);
 
                             $update
                                 ->addDeleteByIds($solrIds)

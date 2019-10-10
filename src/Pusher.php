@@ -134,6 +134,8 @@ class Pusher implements PusherInterface
                 $response->setStatusCode($result->getResponse()->getStatusCode())
                     ->setStatusMessage($result->getResponse()->getStatusMessage());
             } catch (Exception $e) {
+                $deleteFromSolr = false;
+                $this->addLogException('Problem odświeżenia dokumentu w solrze', ['exception' => $e]);
                 echo $e->getMessage();
             }
 
@@ -151,6 +153,8 @@ class Pusher implements PusherInterface
                         }
 
                         if (!empty($solrIds)) {
+                            $this->addLog('Dokumenty usuwane z solra', ['solr_ids' => $solrIds]);
+
                             $update
                                 ->addDeleteByIds($solrIds)
                                 ->addCommit();
@@ -159,6 +163,7 @@ class Pusher implements PusherInterface
                         }
                     }
                 } catch (Exception $e) {
+                    $this->addLogException('Problem z usuwaniem dokumentu z solra', ['exception' => $e]);
                     echo $e->getMessage();
                 }
             }
@@ -192,5 +197,29 @@ class Pusher implements PusherInterface
         $update->addCommit();
 
         $result = $this->client->update($update);
+    }
+
+    /**
+     * @param $message
+     * @param array $data
+     */
+    public function addLog($message, $data = [])
+    {
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/solr_pusher.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info('Log details: ' . $message, $data);
+    }
+
+    /**
+     * @param $message
+     * @param array $data
+     */
+    public function addLogException($message, $data = [])
+    {
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/solr_pusher_error.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->crit('Log details: ' . $message, $data);
     }
 }

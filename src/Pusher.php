@@ -60,7 +60,7 @@ class Pusher implements PusherInterface
                 $update = $this->client->createUpdate();
 
                 if ($documents->getIds()) {
-                    if (count($documents->getIds()) < 50) {
+                    if (count($documents->getIds()) < 200) {
                         $deleteFromSolr = true;
                     }
                     $this->addLog('Dokumenty odśeieżane w solrze', ['object_type' => $documents->getType(), 'count' => count($documents->getIds()), 'ids' => $documents->getIds()]);
@@ -154,6 +154,7 @@ class Pusher implements PusherInterface
 
                     if ($documents->getIds() && $deleteFromSolr) {
                         $toDeleteIds = array_diff($documents->getIds(), $activeIds);
+                        $documents->setToDeleteIds($toDeleteIds);
                         $solrIds = [];
                         foreach ($toDeleteIds as $objId) {
                             $solrIds[] = $documents->createUniqueId($objId);

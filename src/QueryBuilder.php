@@ -182,7 +182,7 @@ class QueryBuilder implements QueryBuilderInterface
 
         $regexText = false;
         if (preg_match_all('/(.* . )(.*)/', $value, $matches) && (count($matches) == 3)) {
-            $regexText = str_replace(' ', '', $matches[1][0]) . ' ' . $matches[2][0];
+            $regexText = str_replace(' ', '', $matches[1][0]) . ' ' . str_replace(' ', '', $matches[2][0]);
         }
 
         $queryText = '';

@@ -118,7 +118,7 @@ class Query extends AbstractQuery
 
         $regexText = false;
         if (preg_match_all('/(.* . )(.*)/', $queryText, $matches) && (count($matches) == 3)) {
-            $regexText = str_replace(' ', '', $matches[1][0]) . ' ' . $matches[2][0];
+            $regexText = str_replace(' ', '', $matches[1][0]) . ' ' . str_replace(' ', '', $matches[2][0]);
             $queriesArray[] = $regexText;
         }
 

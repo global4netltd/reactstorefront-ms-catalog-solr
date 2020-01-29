@@ -19,6 +19,8 @@ use Solarium\Client as SolariumClient;
  */
 class Pusher implements PusherInterface
 {
+    const MAX_TO_DELETE = 1000;
+
     /**
      * @var SolrConfig
      */
@@ -60,7 +62,7 @@ class Pusher implements PusherInterface
                 $update = $this->client->createUpdate();
 
                 if ($documents->getIds()) {
-                    if (count($documents->getIds()) < 200) {
+                    if (count($documents->getIds()) < self::MAX_TO_DELETE) {
                         $deleteFromSolr = true;
                     }
                     $this->addLog('Dokumenty odśeieżane w solrze', ['object_type' => $documents->getType(), 'count' => count($documents->getIds()), 'ids' => $documents->getIds()]);

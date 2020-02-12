@@ -233,6 +233,8 @@ class Query extends AbstractQuery
             $queryFilter = '(' . implode(' OR ', $multi) . ')';
         } elseif (stripos($value, '\-') !== false) {
             $queryFilter = $value;
+        } elseif (stripos($value, '-') === 0) {
+            $queryFilter = '\\' . $value;
         } elseif ((($field->getType() == Field::FIELD_TYPE_FLOAT
                 || $field->getType() == Field::FIELD_TYPE_INT))
             && stripos($value, '-') !== false) {

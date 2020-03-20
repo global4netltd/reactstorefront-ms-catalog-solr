@@ -91,7 +91,7 @@ class Pusher implements PusherInterface
 //                    echo $i . ' - ' . $counter . PHP_EOL;
 
                     if (!$document->getUniqueId() && $document->getObjectType()) {
-                        self::$emptyDocs[] = $document->getObjectId() . '_' . $document->getObjectType() . '_' . $document->getStoreId();
+                        self::$emptyDocs[] = $document->getObjectId();
                         continue;
                     }
 
@@ -164,6 +164,9 @@ class Pusher implements PusherInterface
 
                     if (($documents->getIds() && $deleteFromSolr) || count(self::$emptyDocs) > 0) {
                         $toDeleteIds = array_diff($documents->getIds(), $activeIds);
+                        if(count(self::$emptyDocs) > 0) {
+                            array_merge($toDeleteIds, self::$emptyDocs);
+                        }
                         $documents->setToDeleteIds($toDeleteIds);
                         $solrIds = [];
                         foreach ($toDeleteIds as $objId) {

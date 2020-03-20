@@ -33,6 +33,11 @@ class Pusher implements PusherInterface
     private $client;
 
     /**
+     * @var array
+     */
+    public static $emptyDocs = [];
+
+    /**
      * Pusher constructor
      *
      * @param ConfigInterface $config
@@ -85,7 +90,8 @@ class Pusher implements PusherInterface
 
 //                    echo $i . ' - ' . $counter . PHP_EOL;
 
-                    if (!$document->getUniqueId()) {
+                    if (!$document->getUniqueId() && $document->getObjectType()) {
+                        self::$emptyDocs[] = $document->getObjectId() . '_' . $document->getObjectType() . '_' . $document->getStoreId();
                         continue;
                     }
 
@@ -156,12 +162,16 @@ class Pusher implements PusherInterface
                         $update = $this->client->createUpdate();
                     }
 
-                    if ($documents->getIds() && $deleteFromSolr) {
+                    if (($documents->getIds() && $deleteFromSolr) || count(self::$emptyDocs) > 0) {
                         $toDeleteIds = array_diff($documents->getIds(), $activeIds);
                         $documents->setToDeleteIds($toDeleteIds);
                         $solrIds = [];
                         foreach ($toDeleteIds as $objId) {
                             $solrIds[] = $documents->createUniqueId($objId);
+                        }
+
+                        if(count(self::$emptyDocs) > 0) {
+                            array_merge($solrIds, self::$emptyDocs);
                         }
 
                         if (!empty($solrIds)) {

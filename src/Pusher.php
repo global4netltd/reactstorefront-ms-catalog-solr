@@ -90,8 +90,10 @@ class Pusher implements PusherInterface
 
 //                    echo $i . ' - ' . $counter . PHP_EOL;
 
-                    if (!$document->getUniqueId() && $document->getObjectType()) {
-                        self::$emptyDocs[] = $document->getObjectId();
+                    if (!$document->getUniqueId()) {
+                        if($document->getObjectType()) {
+                            self::$emptyDocs[] = $document->getObjectId();
+                        }
                         continue;
                     }
 
@@ -156,14 +158,19 @@ class Pusher implements PusherInterface
                 echo $e->getMessage();
             }
 
-            if ($this->config->getPusherRemoveMissingObjects()) {
+            if ($this->config->getPusherRemoveMissingObjects() || count(self::$emptyDocs) > 0) {
                 try {
                     if (!$update) {
                         $update = $this->client->createUpdate();
                     }
 
                     if (($documents->getIds() && $deleteFromSolr) || count(self::$emptyDocs) > 0) {
-                        $toDeleteIds = array_diff($documents->getIds(), $activeIds);
+                        $toDeleteIds = [];
+
+                        if($this->config->getPusherRemoveMissingObjects()) {
+                            $toDeleteIds = array_diff($documents->getIds(), $activeIds);
+                        }
+
                         if(count(self::$emptyDocs) > 0) {
                             array_merge($toDeleteIds, self::$emptyDocs);
                         }

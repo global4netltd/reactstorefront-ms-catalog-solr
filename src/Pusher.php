@@ -173,10 +173,6 @@ class Pusher implements PusherInterface
                             $solrIds[] = $documents->createUniqueId($objId);
                         }
 
-                        if(count(self::$emptyDocs) > 0) {
-                            array_merge($solrIds, self::$emptyDocs);
-                        }
-
                         if (!empty($solrIds)) {
                             $this->addLog('Dokumenty usuwane z solra', ['object_type' => $documents->getType(), 'count' => count($solrIds), 'solr_ids' => $solrIds]);
 

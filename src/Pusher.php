@@ -23,6 +23,11 @@ class Pusher implements PusherInterface
     const MAX_TO_DELETE = 1000;
 
     /**
+     * @var int
+     */
+    const MAX_RETRY = 3;
+
+    /**
      * @var SolrConfig
      */
     private $config;
@@ -79,79 +84,109 @@ class Pusher implements PusherInterface
                 $counter = 0;
                 /** @var Document $document */
                 foreach ($documents as $document) {
-                    $profilerStart = microtime(true);
-                    if (($counter === 0) || ($counter % 100 === 0)) {
-                        $start = microtime(true);
-                    }
+                    try{
+                        $profilerStart = microtime(true);
+                        if (($counter === 0) || ($counter % 100 === 0)) {
+                            $start = microtime(true);
+                        }
 
-                    if ($documents->getIds()) {
-                        $deleteFromSolr = true;
-                    }
+                        if ($documents->getIds()) {
+                            $deleteFromSolr = true;
+                        }
 
 //                    echo $i . ' - ' . $counter . PHP_EOL;
 
-                    if (!$document->getUniqueId()) {
-                        if($document->getObjectType()) {
-                            self::$emptyDocs[] = $document->getObjectId();
+                        if (!$document->getUniqueId()) {
+                            if($document->getObjectType()) {
+                                self::$emptyDocs[] = $document->getObjectId();
+                            }
+                            continue;
                         }
+
+                        $doc = $update->createDocument();
+
+                        $doc->solr_id = (string)$document->getUniqueId();
+                        $doc->id = (int)$document->getObjectId();
+                        $doc->object_type = (string)$document->getObjectType();
+                        $doc->solr_updated_at_i = time();
+
+                        /** @var Document\Field $field */
+                        foreach ($document->getData() as $field) {
+                            $solrFieldName = FieldHelper::getFieldName($field);
+                            $solrFieldValue = $field->getValue();
+                            if (
+                                isset(FieldHelper::$mapFieldType[$field->getType()]) &&
+                                FieldHelper::$mapFieldType[$field->getType()] === FieldHelper::SOLR_FIELD_TYPE_DATETIME &&
+                                $field->getValue()
+                            ) {
+                                $solrFieldValue = date(FieldHelper::SOLR_DATETIME_FORMAT, strtotime($field->getValue()));
+                            }
+
+                            $doc->{$solrFieldName} = $solrFieldValue;
+                        }
+
+                        if ($doc->id) {
+                            $i++;
+                            $update->addDocument($doc);
+
+                            if ($documents->getIds()) {
+                                $activeIds[] = $doc->id;
+                            }
+                        }
+
+                        if (++$counter % 100 === 0) {
+//                        echo (round(microtime(true) - $start, 4)) . 's | ' . $counter . PHP_EOL;
+                        }
+                        \G4NReact\MsCatalog\Profiler::increaseTimer('create solarium documents', (microtime(true) - $profilerStart));
+
+                        if ($i >= $pageSize) {
+                            for ($try = 0; $try < self::MAX_RETRY; $try++) {
+                                try {
+                                    $update->addCommit();
+                                    $clientUpdateStart = microtime(true);
+                                    $result = $this->client->update($update);
+                                } catch (Exception $e) {
+                                    if ($try != self::MAX_RETRY) {
+                                        continue;
+                                    }
+                                    $this->addLogException('Niepowodzenie podczas wysyłania danych do solra', ['exception' => $e]);
+                                }
+
+                                \G4NReact\MsCatalog\Profiler::increaseTimer('send update to solarium', (microtime(true) - $clientUpdateStart));
+                                $i = 0;
+                                $update = $this->client->createUpdate();
+                                break;
+                            }
+                        }
+                    } catch (Exception $e) {
+                        $this->addLogException('Problem z dodawaniem dokumentu do solra', ['exception' => $e, 'id' => $document->getObjectId(), 'type' => $document->getObjectType()]);
+
                         continue;
                     }
 
-                    $doc = $update->createDocument();
-
-                    $doc->solr_id = (string)$document->getUniqueId();
-                    $doc->id = (int)$document->getObjectId();
-                    $doc->object_type = (string)$document->getObjectType();
-                    $doc->solr_updated_at_i = time();
-
-                    /** @var Document\Field $field */
-                    foreach ($document->getData() as $field) {
-                        $solrFieldName = FieldHelper::getFieldName($field);
-                        $solrFieldValue = $field->getValue();
-                        if (
-                            isset(FieldHelper::$mapFieldType[$field->getType()]) &&
-                            FieldHelper::$mapFieldType[$field->getType()] === FieldHelper::SOLR_FIELD_TYPE_DATETIME &&
-                            $field->getValue()
-                        ) {
-                            $solrFieldValue = date(FieldHelper::SOLR_DATETIME_FORMAT, strtotime($field->getValue()));
-                        }
-
-                        $doc->{$solrFieldName} = $solrFieldValue;
-                    }
-
-                    if ($doc->id) {
-                        $i++;
-                        $update->addDocument($doc);
-
-                        if ($documents->getIds()) {
-                            $activeIds[] = $doc->id;
-                        }
-                    }
-
-                    if (++$counter % 100 === 0) {
-//                        echo (round(microtime(true) - $start, 4)) . 's | ' . $counter . PHP_EOL;
-                    }
-                    \G4NReact\MsCatalog\Profiler::increaseTimer('create solarium documents', (microtime(true) - $profilerStart));
-
-                    if ($i >= $pageSize) {
-                        $update->addCommit();
-                        $clientUpdateStart = microtime(true);
-                        $result = $this->client->update($update);
-                        \G4NReact\MsCatalog\Profiler::increaseTimer('send update to solarium', (microtime(true) - $clientUpdateStart));
-                        $i = 0;
-                        $update = $this->client->createUpdate();
-                    }
                 }
+
                 if ($i > 0) {
-                    $update->addCommit();
+                    for ($try = 0; $try < self::MAX_RETRY; $try++) {
+                        try {
+                            $update->addCommit();
+                            $start = microtime(true);
+                            $result = $this->client->update($update);
+                            $response->setStatusCode($result->getResponse()->getStatusCode())
+                                ->setStatusMessage($result->getResponse()->getStatusMessage());
+                        } catch (Exception $e) {
+                            if ($try != self::MAX_RETRY) {
+                                continue;
+                            }
+                            $this->addLogException('Niepowodzenie podczas wysyłania danych do solra', ['exception' => $e]);
+                        }
+                        \G4NReact\MsCatalog\Profiler::increaseTimer('send update to solarium', (microtime(true) - $start));
+
+                        break;
+                    }
                 }
 
-                $start = microtime(true);
-                $result = $this->client->update($update);
-                \G4NReact\MsCatalog\Profiler::increaseTimer('send update to solarium', (microtime(true) - $start));
 
-                $response->setStatusCode($result->getResponse()->getStatusCode())
-                    ->setStatusMessage($result->getResponse()->getStatusMessage());
             } catch (Exception $e) {
                 $deleteFromSolr = false;
                 $this->addLogException('Problem odświeżenia dokumentu w solrze', ['exception' => $e]);

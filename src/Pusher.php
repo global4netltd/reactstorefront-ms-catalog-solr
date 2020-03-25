@@ -217,12 +217,23 @@ class Pusher implements PusherInterface
 
                         if (!empty($solrIds)) {
                             $this->addLog('Dokumenty usuwane z solra', ['object_type' => $documents->getType(), 'count' => count($solrIds), 'solr_ids' => $solrIds]);
+                            for ($try = 0; $try < self::MAX_RETRY; $try++) {
+                                try {
+                                    $update
+                                        ->addDeleteByIds($solrIds)
+                                        ->addCommit();
 
-                            $update
-                                ->addDeleteByIds($solrIds)
-                                ->addCommit();
+                                    $this->client->update($update);
+                                } catch (Exception $e) {
+                                    if ($try != self::MAX_RETRY) {
+                                        continue;
+                                    }
+                                    $this->addLogException('Niepowodzenie podczas usuwania danych z solra', ['exception' => $e]);
+                                }
 
-                            $this->client->update($update);
+                                break;
+                            }
+
                         }
                     }
                 } catch (Exception $e) {

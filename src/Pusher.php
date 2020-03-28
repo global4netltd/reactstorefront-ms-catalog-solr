@@ -140,16 +140,17 @@ class Pusher implements PusherInterface
                         \G4NReact\MsCatalog\Profiler::increaseTimer('create solarium documents', (microtime(true) - $profilerStart));
 
                         if ($i >= $pageSize) {
-                            for ($try = 0; $try < self::MAX_RETRY; $try++) {
+                            for ($try = 1; $try <= self::MAX_RETRY; $try++) {
                                 try {
                                     $update->addCommit();
                                     $clientUpdateStart = microtime(true);
                                     $result = $this->client->update($update);
                                 } catch (Exception $e) {
-                                    if ($try != self::MAX_RETRY) {
+                                    if ($try < self::MAX_RETRY) {
                                         continue;
                                     }
                                     $this->addLogException('Niepowodzenie podczas wysyłania danych do solra', ['exception' => $e]);
+                                    break 2;
                                 }
 
                                 \G4NReact\MsCatalog\Profiler::increaseTimer('send update to solarium', (microtime(true) - $clientUpdateStart));
@@ -167,7 +168,7 @@ class Pusher implements PusherInterface
                 }
 
                 if ($i > 0) {
-                    for ($try = 0; $try < self::MAX_RETRY; $try++) {
+                    for ($try = 1; $try <= self::MAX_RETRY; $try++) {
                         try {
                             $update->addCommit();
                             $start = microtime(true);
@@ -175,7 +176,7 @@ class Pusher implements PusherInterface
                             $response->setStatusCode($result->getResponse()->getStatusCode())
                                 ->setStatusMessage($result->getResponse()->getStatusMessage());
                         } catch (Exception $e) {
-                            if ($try != self::MAX_RETRY) {
+                            if ($try < self::MAX_RETRY) {
                                 continue;
                             }
                             $this->addLogException('Niepowodzenie podczas wysyłania danych do solra', ['exception' => $e]);
@@ -217,7 +218,7 @@ class Pusher implements PusherInterface
 
                         if (!empty($solrIds)) {
                             $this->addLog('Dokumenty usuwane z solra', ['object_type' => $documents->getType(), 'count' => count($solrIds), 'solr_ids' => $solrIds]);
-                            for ($try = 0; $try < self::MAX_RETRY; $try++) {
+                            for ($try = 1; $try <= self::MAX_RETRY; $try++) {
                                 try {
                                     $update
                                         ->addDeleteByIds($solrIds)
@@ -225,7 +226,7 @@ class Pusher implements PusherInterface
 
                                     $this->client->update($update);
                                 } catch (Exception $e) {
-                                    if ($try != self::MAX_RETRY) {
+                                    if ($try < self::MAX_RETRY) {
                                         continue;
                                     }
                                     $this->addLogException('Niepowodzenie podczas usuwania danych z solra', ['exception' => $e]);

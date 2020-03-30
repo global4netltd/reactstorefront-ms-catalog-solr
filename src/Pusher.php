@@ -142,9 +142,21 @@ class Pusher implements PusherInterface
                         if ($i >= $pageSize) {
                             for ($try = 1; $try <= self::MAX_RETRY; $try++) {
                                 try {
+                                    $startForLog = microtime(true);
                                     $update->addCommit();
+                                    $endForLog = round(microtime(true) - $startForLog, 4);
+
                                     $clientUpdateStart = microtime(true);
                                     $result = $this->client->update($update);
+                                    $cliendUpdateEnd = round(microtime(true) - $clientUpdateStart, 4);
+
+                                    $this->addLog('Pusher foreach documents', [
+                                        'page_size' => $i,
+                                        'object_type' => $documents->getType(),
+                                        'store_id' => $documents->getStoreId(),
+                                        'time_commit' => $endForLog,
+                                        'time_update' => $cliendUpdateEnd,
+                                        'proc_pid' =>  getmypid()], 'indexer');
                                 } catch (Exception $e) {
                                     if ($try < self::MAX_RETRY) {
                                         continue;
@@ -170,9 +182,22 @@ class Pusher implements PusherInterface
                 if ($i > 0) {
                     for ($try = 1; $try <= self::MAX_RETRY; $try++) {
                         try {
+                            $startForLog = microtime(true);
                             $update->addCommit();
+                            $endForLog = round(microtime(true) - $startForLog, 4);
+
                             $start = microtime(true);
                             $result = $this->client->update($update);
+                            $end = round(microtime(true) - $start, 4);
+
+                            $this->addLog('Pusher end documents', [
+                                'page_size' => $i,
+                                'object_type' => $documents->getType(),
+                                'store_id' => $documents->getStoreId(),
+                                'time_commit' => $endForLog,
+                                'time_update' => $end,
+                                'proc_pid' =>  getmypid()], 'indexer');
+
                             $response->setStatusCode($result->getResponse()->getStatusCode())
                                 ->setStatusMessage($result->getResponse()->getStatusMessage());
                         } catch (Exception $e) {
@@ -278,9 +303,9 @@ class Pusher implements PusherInterface
      * @param $message
      * @param array $data
      */
-    public function addLog($message, $data = [])
+    public function addLog($message, $data = [], $writerName = 'pusher')
     {
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/solr_pusher.log');
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/solr_' . $writerName . '.log');
         $logger = new \Zend\Log\Logger();
         $logger->addWriter($writer);
         $logger->info('Log details: ' . $message, $data);

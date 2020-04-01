@@ -69,6 +69,7 @@ class Client implements ClientInterface
         $this->config = $config;
         $this->solrConfig = new SolrConfig($config);
         $this->client = new SolariumClient($this->solrConfig->getConfigArray());
+        $this->client->getPlugin('postbigrequest');
     }
 
     /**

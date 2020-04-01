@@ -52,7 +52,7 @@ class FieldHelper
      * @var array
      */
     public static $mapSolrFieldTypeToFieldType = [
-        self::SOLR_FIELD_TYPE_TEXT => Field::FIELD_TYPE_STRING,
+        self::SOLR_FIELD_TYPE_TEXT => Field::FIELD_TYPE_TEXT,
         self::SOLR_FIELD_TYPE_STRING => Field::FIELD_TYPE_STRING,
         self::SOLR_FIELD_TYPE_INT => Field::FIELD_TYPE_INT,
         self::SOLR_FIELD_TYPE_DATETIME => Field::FIELD_TYPE_DATETIME,

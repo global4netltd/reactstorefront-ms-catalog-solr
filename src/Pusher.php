@@ -232,8 +232,8 @@ class Pusher implements PusherInterface
                             $toDeleteIds = array_diff($documents->getIds(), $activeIds);
                         }
 
-                        if(count(self::$emptyDocs) > 0) {
-                            array_merge($toDeleteIds, self::$emptyDocs);
+                        if( count(self::$emptyDocs) > 0) {
+                            $toDeleteIds = array_merge($toDeleteIds, self::$emptyDocs);
                         }
                         $documents->setToDeleteIds($toDeleteIds);
                         $solrIds = [];

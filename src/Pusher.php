@@ -221,9 +221,7 @@ class Pusher implements PusherInterface
 
             if ($this->config->getPusherRemoveMissingObjects() || count(self::$emptyDocs) > 0) {
                 try {
-                    if (!$update) {
-                        $update = $this->client->createUpdate();
-                    }
+                    $update = $this->client->createUpdate();
 
                     if (($documents->getIds() && $deleteFromSolr) || count(self::$emptyDocs) > 0) {
                         $toDeleteIds = [];

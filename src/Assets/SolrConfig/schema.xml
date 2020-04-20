@@ -188,6 +188,21 @@
         </analyzer>
     </fieldType>
 
+    <fieldType name="primary_search" class="solr.TextField" positionIncrementGap="100">
+        <analyzer type="index">
+            <tokenizer class="solr.StandardTokenizerFactory"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.NGramFilterFactory" maxGramSize="20" minGramSize="1"/>
+        </analyzer>
+        <analyzer type="query">
+            <tokenizer class="solr.StandardTokenizerFactory"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1"
+                    catenateWords="4" catenateNumbers="1" catenateAll="1" splitOnCaseChange="1"
+                    splitOnNumerics="1" preserveOriginal="1"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>
+
     <fieldType name="textspaces" class="solr.TextField" positionIncrementGap="100">
         <analyzer type="index">
             <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -255,6 +270,7 @@
     <dynamicField name="*_t_sort" type="text_gen_sort" multiValued="false" indexed="true" stored="true"/>
     <dynamicField name="*_txt_en" type="text_en" indexed="true" stored="true"/>
     <dynamicField name="*_ngram" type="text_ngram" indexed="true" stored="true"/>
+    <dynamicField name="*_ngram_primary" type="primary_search" indexed="true" stored="true"/>
     <dynamicField name="*_point" type="point" indexed="true" stored="true"/>
     <dynamicField name="*_srpt" type="location_rpt" indexed="true" stored="true"/>
     <dynamicField name="attr_*" type="text_general" multiValued="true" indexed="true" stored="true"/>

@@ -19,6 +19,7 @@ class FieldHelper
     const SOLR_FIELD_TYPE_BOOL = 'b';
     const SOLR_FIELD_TYPE_TEXT_SEARCH = 'ngram';
     const SOLR_FIELD_TYPE_TEXT_SEARCH_PRIMARY = 'ngram_primary';
+    const SOLR_FIELD_TYPE_TEXT_WORDS = 'wrds';
 
     const SOLR_NOT_INDEXABLE_MARK = 'ni';
     const SOLR_MULTI_VALUE_MARK = 'mv';
@@ -48,6 +49,7 @@ class FieldHelper
         Field::FIELD_TYPE_DATE => self::SOLR_FIELD_TYPE_DATETIME,
         Field::FIELD_TYPE_TEXT_SEARCH => self::SOLR_FIELD_TYPE_TEXT_SEARCH,
         Field::FIELD_TYPE_TEXT_SEARCH_PRIMARY => self::SOLR_FIELD_TYPE_TEXT_SEARCH_PRIMARY,
+        Field::FIELD_TYPE_TEXT_WORDS => self::SOLR_FIELD_TYPE_TEXT_WORDS,
     ];
 
     /**
@@ -62,7 +64,8 @@ class FieldHelper
         self::SOLR_FIELD_TYPE_BOOL => Field::FIELD_TYPE_BOOL,
         self::SOLR_FIELD_TYPE_STATIC => Field::FIELD_TYPE_STATIC,
         self::SOLR_FIELD_TYPE_TEXT_SEARCH => Field::FIELD_TYPE_TEXT,
-        self::SOLR_FIELD_TYPE_TEXT_SEARCH_PRIMARY => Field::FIELD_TYPE_TEXT
+        self::SOLR_FIELD_TYPE_TEXT_SEARCH_PRIMARY => Field::FIELD_TYPE_TEXT,
+        self::SOLR_FIELD_TYPE_TEXT_WORDS => Field::FIELD_TYPE_TEXT
     ];
 
     /**

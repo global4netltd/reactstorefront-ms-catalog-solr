@@ -4,6 +4,7 @@ namespace G4NReact\MsCatalogSolr\Client;
 
 use Exception;
 use G4NReact\MsCatalog\Client\ClientInterface;
+use G4NReact\MsCatalog\Spellcheck\SpellcheckResponseInterface;
 use G4NReact\MsCatalog\Config;
 use G4NReact\MsCatalog\Document;
 use G4NReact\MsCatalog\Document\Field;
@@ -15,11 +16,11 @@ use G4NReact\MsCatalogSolr\Config as SolrConfig;
 use G4NReact\MsCatalogSolr\FieldHelper;
 use G4NReact\MsCatalogSolr\Puller;
 use G4NReact\MsCatalogSolr\Pusher;
+use G4NReact\MsCatalogSolr\Spellcheck\SpellcheckRequest;
 use G4NReact\MsCatalogSolr\Query as MsCatalogSolrQuery;
 use G4NReact\MsCatalogSolr\Response;
 use Solarium\Client as SolariumClient;
 use Solarium\Core\Query\QueryInterface as SolariumQueryInterface;
-use Solarium\Core\Query\Result\ResultInterface as SolariumResultInterface;
 use Solarium\Exception\UnexpectedValueException;
 use Solarium\QueryType\Select\Query\Query;
 
@@ -358,6 +359,17 @@ class Client implements ClientInterface
     public function getField(string $name, $value = null, string $type = '', bool $indexable = false, bool $multiValued = false, array $args = [])
     {
         return new Field($name, $value, $type, $indexable, $multiValued, $args);
+    }
+
+    /**
+     * @param string $text
+     * @param array $options
+     * @return SpellcheckResponseInterface
+     */
+    public function checkSpelling(string $text, array $options = []): SpellcheckResponseInterface
+    {
+        $spellCheckRequest = new SpellcheckRequest($this->client, $options);
+        return $spellCheckRequest->execute($text);
     }
 
     /**

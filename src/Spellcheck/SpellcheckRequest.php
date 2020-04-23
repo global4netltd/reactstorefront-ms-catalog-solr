@@ -3,7 +3,6 @@
 
 namespace G4NReact\MsCatalogSolr\Spellcheck;
 
-
 use Solarium\Client;
 
 /**
@@ -37,6 +36,7 @@ class SpellcheckRequest
 
     /**
      * @param string $text
+     * @return SpellcheckResponse
      */
    public function execute(string $text): SpellcheckResponse
    {
@@ -47,7 +47,7 @@ class SpellcheckRequest
        $query->setCollate($this->getOption('collate', true));
        $query->setExtendedResults($this->getOption('extended_results', true));
        $query->setCollateExtendedResults($this->getOption('collate_extended_results', true));
-//       $query->setOnlyMorePopular($this->getOption('only_more_popular', true));
+       $query->setOnlyMorePopular($this->getOption('only_more_popular', true));
        return new SpellcheckResponse($this->client->spellcheck($query));
    }
 

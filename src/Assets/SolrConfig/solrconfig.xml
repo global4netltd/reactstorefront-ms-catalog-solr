@@ -694,10 +694,10 @@
       <str name="echoParams">explicit</str>
       <int name="rows">10</int>
       <!-- Default search field
-         <str name="df">text</str> 
+         <str name="df">text</str>
         -->
       <!-- Change from JSON to XML format (the default prior to Solr 7.0)
-         <str name="wt">xml</str> 
+         <str name="wt">xml</str>
         -->
     </lst>
     <!-- In addition to defaults, "appends" params can be specified
@@ -861,7 +861,7 @@
     <!-- a spellchecker built from a field of the main index -->
     <lst name="spellchecker">
       <str name="name">default</str>
-      <str name="field">_text_</str>
+      <str name="field">search_suggestions_wrds</str>
       <str name="classname">solr.DirectSolrSpellChecker</str>
       <!-- the spellcheck distance measure used, the default is the internal levenshtein -->
       <str name="distanceMeasure">internal</str>

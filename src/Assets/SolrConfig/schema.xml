@@ -167,7 +167,12 @@
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         </analyzer>
     </fieldType>
-
+    <fieldType name="text_words" class="solr.TextField" positionIncrementGap="100">
+        <analyzer>
+            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>
     <fieldType name="text_ngram" class="solr.TextField" positionIncrementGap="100">
         <analyzer type="index">
             <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -298,6 +303,7 @@
     <dynamicField name="*_dt_ni" type="pdate" indexed="false" stored="true"/>
     <dynamicField name="*_ws" type="text_ws" indexed="true" stored="true"/>
     <dynamicField name="*_ws_ni" type="text_ws" indexed="false" stored="true"/>
+    <dynamicField name="*_wrds" type="text_words" indexed="true" stored="true"/>
     <dynamicField name="*_i" type="pint" indexed="true" stored="true"/>
     <dynamicField name="*_i_ni" type="pint" indexed="false" stored="true"/>
     <dynamicField name="*_s" type="string" indexed="true" stored="true"/>

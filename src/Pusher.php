@@ -43,6 +43,11 @@ class Pusher implements PusherInterface
     public static $emptyDocs = [];
 
     /**
+     * @var array
+     */
+    public static $toCleanCache = [];
+
+    /**
      * Pusher constructor
      *
      * @param ConfigInterface $config
@@ -95,6 +100,11 @@ class Pusher implements PusherInterface
                         }
 
 //                    echo $i . ' - ' . $counter . PHP_EOL;
+
+                        if ($document->getIdToCleanCache()) {
+                            self::$toCleanCache[$document->getIdToCleanCache()] = $document->getIdToCleanCache();
+                            $document->unsetField('id_to_clean_cache');
+                        }
 
                         if (!$document->getUniqueId()) {
                             if($document->getObjectType()) {
@@ -217,6 +227,10 @@ class Pusher implements PusherInterface
                 $deleteFromSolr = false;
                 $this->addLogException('Problem odświeżenia dokumentu w solrze', ['exception' => $e]);
                 echo $e->getMessage();
+            }
+
+            if (!empty(self::$toCleanCache)) {
+                $documents->setToCleanCacheIds(self::$toCleanCache);
             }
 
             if ($this->config->getPusherRemoveMissingObjects() || count(self::$emptyDocs) > 0) {

@@ -228,16 +228,15 @@ class Query extends AbstractQuery
             $queryFilter = '[' . $fieldValue->getFromValue() . ' TO ' . $fieldValue->getToValue() . ']';
         } elseif (is_array($value) && $value) {
             $queryFilter = '("' . implode('" OR "', $value) . '")';
-        } elseif (stripos($value, ',') !== false) {
+        } elseif (is_string($value) && stripos($value, ',') !== false) {
             $multi = explode(',', $value);
             $queryFilter = '(' . implode(' OR ', $multi) . ')';
-        } elseif (stripos($value, '\-') !== false) {
+        } elseif (is_string($value) && stripos($value, '\-') !== false) {
             $queryFilter = $value;
-        } elseif (stripos($value, '-') === 0) {
+        } elseif (is_string($value) && stripos($value, '-') === 0) {
             $queryFilter = '\\' . $value;
-        } elseif ((($field->getType() == Field::FIELD_TYPE_FLOAT
-                || $field->getType() == Field::FIELD_TYPE_INT))
-            && stripos($value, '-') !== false) {
+        } elseif ((($field->getType() == Field::FIELD_TYPE_FLOAT || $field->getType() == Field::FIELD_TYPE_INT))
+            && (is_string($value) && stripos($value, '-') !== false)) {
             /**
              * @todo handle other numeric types !!!
              */

@@ -17,7 +17,6 @@ class Config
 
     /**
      * Config constructor
-     *
      * @param ConfigInterface $config
      */
     public function __construct(ConfigInterface $config)
@@ -42,12 +41,19 @@ class Config
      */
     public function getConnectionConfigArray(): array
     {
-        return [
-            'host'       => $this->getHost(),
-            'port'       => $this->getPort(),
+        $config = [
+            'host' => $this->getHost(),
+            'port' => $this->getPort(),
             'collection' => $this->getCollection(),
-            'core'       => $this->getCore(),
+            'core' => $this->getCore()
         ];
+
+        if ($this->getUsername()) {
+            $config['username'] = $this->getUsername();
+            $config['password'] = $this->getPassword();
+        }
+
+        return $config;
     }
 
     /**
@@ -72,6 +78,22 @@ class Config
     public function getCore(): string
     {
         return $this->config->getEngineParams()['connection']['core'] ?? '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getUsername(): string
+    {
+        return $this->config->getEngineParams()['connection']['username'] ?? '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getPassword(): string
+    {
+        return $this->config->getEngineParams()['connection']['username'] ?? '';
     }
 
     /**
